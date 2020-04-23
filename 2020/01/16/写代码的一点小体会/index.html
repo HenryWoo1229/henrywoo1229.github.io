@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+
+  <meta name="description" content="写代码这件事，跟人穿衣打扮还有点像。有的代码邋里邋遢，一看就不怎么收拾，让人根本没有读下去的欲望。虽然可能逻辑上没有问题，执行起来也都正常，但代码毕竟是给人阅读的，赏心悦目不必强求，但最起码得让人一眼看过去就知道每一句话想表达的意思，这才是一份合格的代码
+意思明确的方法名胜过详细的注释
+一个合格的方">
+
+
+<link rel="alternate" href="/atom.xml" title="一个极其普通的程序员" type="application/atom+xml">
+<meta name="theme-color" content="#a1d0f6">
+<title>写代码的一点小体会 - 一个极其普通的程序员</title>
+<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+<link rel="shortcut icon" href="/favicon.png">
+
+<link rel="stylesheet" href="/css/style.css">
+
+<nav class="main-nav">
+
+	
+	    <a href="/">← 主页</a>
+	
+	
+	    <a href="/about/">About</a>
+	
+	    <a href="/archives/">Archives</a>
+	
+	
+	<!--
+	<a class="cta" href="/atom.xml" data-no-instant>订阅</a>
+	-->
+</nav>
+
+<section id="wrapper">
+    <article class="post">
+    <header>
+        
+            <h1>写代码的一点小体会</h1>
+        
+        <h2 class="headline">Jan 16 2020
+        
+        </h2>
+    </header>
+</article>
+<section id="post-body"><p>写代码这件事，跟人穿衣打扮还有点像。有的代码邋里邋遢，一看就不怎么收拾，让人根本没有读下去的欲望。虽然可能逻辑上没有问题，执行起来也都正常，但代码毕竟是给人阅读的，赏心悦目不必强求，但最起码得让人一眼看过去就知道每一句话想表达的意思，这才是一份合格的代码</p>
+<p><strong>意思明确的方法名胜过详细的注释</strong></p>
+<p>一个合格的方法名，一目了然，从字面意思就能知道设计者的意图。比如：findObjectByResourceID，原来这是通过 resourceID 的方式去寻找对象。再来一个，connectToServerLocked，原来这是一个加锁同步的方式去连接服务器。感觉是不是很好，不用看注释，也不用立即去梳理代码逻辑，就能知道方法执行的操作</p>
+<p>如果是 checkParams，是不是看不懂要做的事？只知道要检查参数，但不知道检查什么，需要进一步看看注释或者浏览一下实现逻辑。改成 checkParamsEmpty，就会好理解得多</p>
+<p><strong>任何一处详细的变量名不仅节省别人的时间也节省自己的时间</strong></p>
+<p>程序员有个不成文的规矩，喜欢用 foo 去给没有实际含义的变量做变量名。这给其他人阅读代码带来了理解上的难度，并且也在给自己将来维护代码埋坑</p>
+<p>比如下面这段代码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">def IsPrime(n):</span><br><span class="line">  foo &#x3D; False</span><br><span class="line">  for i in range(2, n):</span><br><span class="line">    if n % i &#x3D;&#x3D; 0:</span><br><span class="line">      foo &#x3D; True</span><br><span class="line">  return not foo</span><br></pre></td></tr></table></figure>
+
+<p>看方法名我们知道它是要判断 n 是否为素数。当我们快速浏览代码的时候，发现返回的结果跟 foo 变量有关，所以要弄懂它。然后要继续去理解 for 循环中的变量 i，也要弄懂它。这样，起码要花时间（尽管不长）去理解 2 个变量的意思，这里，还是代码比较短，如果代码很长，有 50 行，foo 和 i 在里面各种穿插，读到后面的时候恐怕就要回头再来看一遍的含义了。改成如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">def IsPrime(n):</span><br><span class="line">  for divisor in range(2, n):</span><br><span class="line">    if n % divisor &#x3D;&#x3D; 0:</span><br><span class="line">      return False</span><br><span class="line">  return True</span><br></pre></td></tr></table></figure>
+
+<p>去掉了 foo（或者改成 prime 也可以），将 i 改为 divisor，减少了阅读理解的成本，可读性一下子就提高了</p>
+<p>大部分人对程序员的印象都是油头垢面，木讷呆板，这个是外界的理解。而程序员之间的理解，就是代码了，如果代码写得也油头垢面，无法阅读，那么就真的该好好反思反思是不是可以做点小改进，让自己看起来更“整洁”一些了</p>
+</section>
+    
+
+    <footer id="post-meta" class="clearfix">
+        <a href="/about/">
+        <img class="avatar" src="/images/mine.png">
+        <div>
+            <span class="dark">一个极其普通的程序员</span>
+            <span></span>
+        </div>
+        </a>
+        <section id="sharing">
+            <!--
+            <a title="Share to Twitter" class="twitter" href="https://twitter.com/intent/tweet?text=http://yoursite.com/2020/01/16/%E5%86%99%E4%BB%A3%E7%A0%81%E7%9A%84%E4%B8%80%E7%82%B9%E5%B0%8F%E4%BD%93%E4%BC%9A/ - 写代码的一点小体会 @" target="_blank" rel="noopener"><span class="icon-twitter">tweet</span></a>
+            <a title="Share to Facebook" class="facebook" href="#" onclick="
+                window.open(
+                  'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),
+                  'facebook-share-dialog',
+                  'width=626,height=436');
+                return false;"><span class="icon-facebook-sign">Share</span>
+            </a>
+            -->
+        </section>
+    </footer>
+
+
+  <section id="comment">
+    <button class="btn" id="loadcmts" onclick="cmts.load();">加载评论</button>
+    <div id="gitment"></div>
+    <script src='/js/gitment.browser.js'></script>
+    <link rel="stylesheet" href=''>
+    <script>
+      var cmts={
+        load:function cmts(){
+          var gitment = new Gitment({
+          
+            id: "写代码的一点小体会",
+          
+            owner: "",
+            repo: "",
+            oauth: {
+              client_id: "",
+              client_secret: "",
+            },
+          })
+          gitment.render('gitment');
+          var loadcmt = document.getElementById("loadcmts");
+          var imyourfather = loadcmt.parentNode;
+          imyourfather.removeChild(loadcmts)
+        }
+      }
+    </script>
+  </section>
+
+
+	<footer id="footer">
+	<div id="social">
+		<p class="small">©  Henry Woo in CHJ Inc.
+		</p>
+	</div>
+</footer>
+
+</section>
+
+	<script src="//cdnjs.loli.net/ajax/libs/instantclick/3.0.1/instantclick.min.js" data-no-instant></script>
+	<script data-no-instant>
+		
+		InstantClick.init('mousedown');
+	</script>
+
+
+

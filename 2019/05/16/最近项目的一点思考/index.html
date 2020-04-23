@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+
+  <meta name="description" content="1.最近有个项目是这样的，测试系统需要部署到好几台 windows 的 PC 上，然后依靠它们去执行测试任务。由于输入参数文件数量非常多而且大，多到文件数量十万，文件总大小 10 G。由于每次输入的文件不是固定的，有时候要输入这一部分，有时候要输入那一部分。
+我是怎么做的？我觉得用拷贝不现实（事实上">
+
+
+<link rel="alternate" href="/atom.xml" title="一个极其普通的程序员" type="application/atom+xml">
+<meta name="theme-color" content="#a1d0f6">
+<title>最近项目的一点思考 - 一个极其普通的程序员</title>
+<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+<link rel="shortcut icon" href="/favicon.png">
+
+<link rel="stylesheet" href="/css/style.css">
+
+<nav class="main-nav">
+
+	
+	    <a href="/">← 主页</a>
+	
+	
+	    <a href="/about/">About</a>
+	
+	    <a href="/archives/">Archives</a>
+	
+	
+	<!--
+	<a class="cta" href="/atom.xml" data-no-instant>订阅</a>
+	-->
+</nav>
+
+<section id="wrapper">
+    <article class="post">
+    <header>
+        
+            <h1>最近项目的一点思考</h1>
+        
+        <h2 class="headline">May 16 2019
+        
+        </h2>
+    </header>
+</article>
+<section id="post-body"><h4 id="1"><a href="#1" class="headerlink" title="1."></a>1.</h4><p>最近有个项目是这样的，测试系统需要部署到好几台 windows 的 PC 上，然后依靠它们去执行测试任务。由于输入参数文件数量非常多而且大，多到文件数量十万，文件总大小 10 G。由于每次输入的文件不是固定的，有时候要输入这一部分，有时候要输入那一部分。</p>
+<p>我是怎么做的？我觉得用拷贝不现实（事实上，我尝试了一下，拷贝几万个大文件，看着进度条上剩余时间 1 小时，心都凉了），于是我觉得用剪切的方案肯定比复制好，也的确如此，在同一个磁盘下剪切大文件的外层目录，一瞬间就操作完了。所以，每次要执行什么任务，我是挨个去所有的电脑上，对，是所有，剪切文件再运行测试任务。天真，幼稚，我就这样折腾了自己两天以后，再也受不了了。</p>
+<h4 id="2"><a href="#2" class="headerlink" title="2."></a>2.</h4><p>我开始寻求改变。既然多文件，大文件很耽误时间，那么一个文件一定要快得多吧。所以我加入了 task 文件，把所有要执行的任务目录写到 task 中，并且肯定不能再干手写这种费力不讨好的行为了。又加了个脚本来一键生成任务。哈哈，简直不要太棒。原本要干一个钟头的活，现在五分钟完事儿，“偷来的 55 分钟” 能愉快地喝着茶，吃着面包看报纸了。</p>
+<h4 id="3"><a href="#3" class="headerlink" title="3."></a>3.</h4><p>好景不长，新的噩梦又开始。有十万个输入参数集，就对应有十万个输出集。虽然这十万个文件总大小就十几兆，但压缩，解压同样消耗了十几分钟的时间。想要寻求改变，就得脚本来帮忙。合并，是的，通过脚本，轻松的将十万个文件的内容合并到了一个文件里。拷贝一个几兆大小的文件，对于网络传输来说一点都不费力。</p>
+<h4 id="4"><a href="#4" class="headerlink" title="4."></a>4.</h4><p>这套方案加上 windows 远程助手的帮忙，我轻松实现了在自己的电脑上操作好几台电脑，执行任务从原来的一个小时，到现在的五分钟。处理任务结果集，从原来的一小时，到现在的五分钟。效率提升了 90%。但是每次在不同的电脑上进行同样的操作步骤，对于一个把 “DRY”（Do not Repeat Yourself）视为生命法则（其实就是懒）的人来说，是不可接受的。我碎碎念着，一定要做点什么改变这一切。</p>
+<h4 id="5"><a href="#5" class="headerlink" title="5."></a>5.</h4><p>SSH 方案的尝试。linux 系统中，SSH 是一个非常好用的思路。包括我之前用 Hadoop 时，Namenode 要控制 DataNode，也是通过 SSH。于是找到了 openssh 的 windows 版本，发现竟然还是 2004 年的更新。试了一下果然不好用（也许是我没用对，总之不想花时间再去调试这么老的版本）。好在 windows 10 已经加入了 ssh 的支持。当我打开程序安装时发现，竟然还是 beta 版本。抱着试一试的心理安装了 ssh server 和 ssh client，并配置好密钥后，满怀期待的尝试 ssh 连接。oh no，连接失败了。</p>
+<h4 id="6"><a href="#6" class="headerlink" title="6."></a>6.</h4><p>我其实是这样想的。在主机上通过 ssh 实现版本的一键部署，安装，测试系统的启动，总之我都连上 ssh 了，那所有的拷贝，执行，还不都是几个脚本就搞定的事？这可是 ssh 啊！但是 windows 它不咋给力，还得换招。</p>
+<h4 id="7"><a href="#7" class="headerlink" title="7."></a>7.</h4><p>其实是留了 “备胎” 的，但是能用现成的就绝不自己动手造轮子。既然轮子用不上。就自己造吧。写服务，对，自己写服务，把所有要执行的操作封装到服务里，并部署到所有的电脑上。这样，就相当于有一个远程管家在帮助我执行本地任务。而我呢，只需要在客户端封装好操作指令，需要执行什么任务就把指令发给 “管家” 来做。想想，也是美滋滋了。</p>
+</section>
+    
+
+    <footer id="post-meta" class="clearfix">
+        <a href="/about/">
+        <img class="avatar" src="/images/mine.png">
+        <div>
+            <span class="dark">一个极其普通的程序员</span>
+            <span></span>
+        </div>
+        </a>
+        <section id="sharing">
+            <!--
+            <a title="Share to Twitter" class="twitter" href="https://twitter.com/intent/tweet?text=http://yoursite.com/2019/05/16/%E6%9C%80%E8%BF%91%E9%A1%B9%E7%9B%AE%E7%9A%84%E4%B8%80%E7%82%B9%E6%80%9D%E8%80%83/ - 最近项目的一点思考 @" target="_blank" rel="noopener"><span class="icon-twitter">tweet</span></a>
+            <a title="Share to Facebook" class="facebook" href="#" onclick="
+                window.open(
+                  'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),
+                  'facebook-share-dialog',
+                  'width=626,height=436');
+                return false;"><span class="icon-facebook-sign">Share</span>
+            </a>
+            -->
+        </section>
+    </footer>
+
+
+  <section id="comment">
+    <button class="btn" id="loadcmts" onclick="cmts.load();">加载评论</button>
+    <div id="gitment"></div>
+    <script src='/js/gitment.browser.js'></script>
+    <link rel="stylesheet" href=''>
+    <script>
+      var cmts={
+        load:function cmts(){
+          var gitment = new Gitment({
+          
+            id: "最近项目的一点思考",
+          
+            owner: "",
+            repo: "",
+            oauth: {
+              client_id: "",
+              client_secret: "",
+            },
+          })
+          gitment.render('gitment');
+          var loadcmt = document.getElementById("loadcmts");
+          var imyourfather = loadcmt.parentNode;
+          imyourfather.removeChild(loadcmts)
+        }
+      }
+    </script>
+  </section>
+
+
+	<footer id="footer">
+	<div id="social">
+		<p class="small">©  Henry Woo in CHJ Inc.
+		</p>
+	</div>
+</footer>
+
+</section>
+
+	<script src="//cdnjs.loli.net/ajax/libs/instantclick/3.0.1/instantclick.min.js" data-no-instant></script>
+	<script data-no-instant>
+		
+		InstantClick.init('mousedown');
+	</script>
+
+
+

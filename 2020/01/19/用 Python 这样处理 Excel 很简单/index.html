@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+
+  <meta name="description" content="Python 中的 xlwings 库用来处理 Excel 非常好用，支持高版本的 xlsx 格式，也能支持 pandas 的 DataFrame，甚至还提供 REST API。用法上也简洁明了，下面说一说一些基本的读和写的操作
+安装1pip install xlwings
+
+在 conda 上安装">
+
+
+<link rel="alternate" href="/atom.xml" title="一个极其普通的程序员" type="application/atom+xml">
+<meta name="theme-color" content="#a1d0f6">
+<title>用 Python 这样处理 Excel 很简单 - 一个极其普通的程序员</title>
+<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+<link rel="shortcut icon" href="/favicon.png">
+
+<link rel="stylesheet" href="/css/style.css">
+
+<nav class="main-nav">
+
+	
+	    <a href="/">← 主页</a>
+	
+	
+	    <a href="/about/">About</a>
+	
+	    <a href="/archives/">Archives</a>
+	
+	
+	<!--
+	<a class="cta" href="/atom.xml" data-no-instant>订阅</a>
+	-->
+</nav>
+
+<section id="wrapper">
+    <article class="post">
+    <header>
+        
+            <h1>用 Python 这样处理 Excel 很简单</h1>
+        
+        <h2 class="headline">Jan 19 2020
+        
+        </h2>
+    </header>
+</article>
+<section id="post-body"><p>Python 中的 xlwings 库用来处理 Excel 非常好用，支持高版本的 xlsx 格式，也能支持 pandas 的 DataFrame，甚至还提供 REST API。用法上也简洁明了，下面说一说一些基本的读和写的操作</p>
+<h4 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install xlwings</span><br></pre></td></tr></table></figure>
+
+<p>在 conda 上安装，由于直接 install 的话，官方的包会滞后，所以采用下面的命令会接近于 pip 的发布</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">conda install -c conda-forge xlwings</span><br></pre></td></tr></table></figure>
+
+<p>Windows 系统上还需要依赖 pywin32, comtypes 库，但 pip 和 conda 安装时会自动处理</p>
+<h4 id="读-Excel"><a href="#读-Excel" class="headerlink" title="读 Excel"></a>读 Excel</h4><p>xlwings 的一套逻辑关系是<br>App -&gt; workbook（工作簿，我们打开的 Excel 文件）-&gt; sheet（工作簿中的某一个编辑页）</p>
+<p>所以创建的先后顺序也是先创建 App，再打开 workbook，再指定要读取的 sheet</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"># 推荐这样导入包</span><br><span class="line">import xlwings as xw</span><br><span class="line"></span><br><span class="line"># 创建 App，设置为不可见，代码处理时不希望看到界面被打开</span><br><span class="line">app &#x3D; xw.App(visible&#x3D;False, add_book&#x3D;False)</span><br><span class="line">app.display_alerts &#x3D; False</span><br><span class="line">app.screen_updating &#x3D; False</span><br></pre></td></tr></table></figure>
+
+<p>打开 workbook，这里要指定 xls 或者 xlsx 的文件路径</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">excel_path &#x3D; &#39;xxx.xlsx&#39;</span><br><span class="line">workbook &#x3D; app.books.open(excel_path)</span><br></pre></td></tr></table></figure>
+
+<p>遍历 sheet 的方式很简单，用 for 即可</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">for sheet in workbook.sheets:</span><br><span class="line">    print(&#39;sheet name is&#123;&#125;&#39;.format(sheet.name))</span><br><span class="line"></span><br><span class="line">fori i in range(len(workbook.sheets)):</span><br><span class="line">    print(&#39;sheet name is&#123;&#125;&#39;.format(workbook.sheets[i]))</span><br></pre></td></tr></table></figure>
+
+<p>还可以指定 sheet 的名字针对性的访问</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sheet_name &#x3D; &#39;test_excel&#39;</span><br><span class="line">sheet &#x3D; workbook.sheets[sheet_name]</span><br></pre></td></tr></table></figure>
+
+<p>接下来，是访问 sheet 内具体的数据，在 xlwings 里使用 Range。按行访问时，第一行的下标是 1 不是 0，这跟编程语言的习惯不一样</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">index &#x3D; 1</span><br><span class="line">_value_A1 &#x3D; sheet.range(&#39;A&#39; + str(index)).value</span><br><span class="line"></span><br><span class="line">_value_B2 &#x3D; sheet.range(&#39;B2&#39;).value</span><br></pre></td></tr></table></figure>
+
+<p>循环的遍历某一列</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">for index in range(1, 10):</span><br><span class="line">    sheet.range(&#39;A&#39; + str(index)).value</span><br></pre></td></tr></table></figure>
+
+<p>读取一个区域的数据</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">values &#x3D; sheet.range(&#39;A1:C3&#39;).value</span><br><span class="line"></span><br><span class="line"># 输出这个区域的矩阵 list</span><br><span class="line">[[&#39;Pos&#39;, &#39;Name&#39;, &#39;Ct SYBR&#39;], </span><br><span class="line"> [&#39;A1&#39;, &#39;6A1-IL10&#39;, 21.9], </span><br><span class="line"> [&#39;A2&#39;, &#39;6A1-IL10&#39;, 21.99]]</span><br></pre></td></tr></table></figure>
+
+<p>如果是空的单元格，返回的 value=None</p>
+<p>没有关闭工作簿时，手动打开这个表格会提示已经锁定了</p>
+<p><img src="https://note.youdao.com/yws/res/10019/31E28D3F5DE046D99EA1CB9F673EE63A" alt="image"></p>
+<p>所以及时关闭，最好在使用的块外用 try-finally 保证每次都会关闭</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">try:</span><br><span class="line">   # do-something-here</span><br><span class="line">finally:</span><br><span class="line">   workbook.close()</span><br><span class="line">   app.quit()</span><br></pre></td></tr></table></figure>
+
+<h4 id="写-Excel"><a href="#写-Excel" class="headerlink" title="写 Excel"></a>写 Excel</h4><p>写数据的基本操作主要涉及创建 workbook，sheet，添加数据，保存数据。当初始化 App 实例后，通过 add 方式来新建工作簿</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">new_workbook &#x3D; app.books.add()</span><br></pre></td></tr></table></figure>
+
+<p>此时创建的工作簿默认带名字为 Sheet1 的 sheet，修改名字通过以下方式</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># 通过访问序号的方式改名</span><br><span class="line">new_sheet_name &#x3D; &#39;new_sheet&#39;</span><br><span class="line">new_workbook.sheets[0].name &#x3D; new_sheet_name</span><br><span class="line"></span><br><span class="line"># 通过访问名字的方式改名</span><br><span class="line">new_workbook.sheets[&#39;Sheet1&#39;].name &#x3D; new_sheet_name</span><br></pre></td></tr></table></figure>
+
+<p>添加新的 sheet</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># 添加默认名字的 sheet</span><br><span class="line">new_workbook.sheets.add()</span><br><span class="line"></span><br><span class="line"># 添加指定名字的 sheet</span><br><span class="line">a_name &#x3D; &#39;a_name&#39;</span><br><span class="line">new_workbook.sheets.add(a_name)</span><br></pre></td></tr></table></figure>
+
+<p>修改数据，直接对 value 赋值</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># 修改 value 的值</span><br><span class="line">index &#x3D; 1</span><br><span class="line">sheet.range(&#39;A&#39; + str(index)).value &#x3D; &#39;new_value&#39;</span><br></pre></td></tr></table></figure>
+
+<p>保存新的工作簿</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">_path &#x3D; &#39;xxxxx.xlsx&#39;</span><br><span class="line">new_workbook.save(_path)</span><br><span class="line"></span><br><span class="line"># 不添加路径的 save，类似于 ctrl + S</span><br><span class="line">new_workbook.save()</span><br></pre></td></tr></table></figure>
+
+<p>除此之外，xlwings 还可以把 plt 画的图粘贴到表格中</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">import matplotlib.pyplot as plt</span><br><span class="line"></span><br><span class="line">fig &#x3D; plt.figure()</span><br><span class="line">plt.plot([1, 2, 3])</span><br><span class="line"></span><br><span class="line">sheet &#x3D; workbook.sheets[0]</span><br><span class="line">sheet.pictures.add(fig, name&#x3D;&#39;plot&#39;, update&#x3D;True)</span><br><span class="line">workbook.save(&#39;picture.xlsx&#39;)</span><br></pre></td></tr></table></figure>
+
+<p>打开 picture.xlsx</p>
+<p><img src="https://note.youdao.com/yws/res/10083/DE8F9511480D4D71B8CE189E1F211718" alt="image"></p>
+<p>今天分享了 xlwings 库在 Python 中处理 Excel 的基本操作，实现数据的读写掌握上面的内容基本足够了，我根据上面的内容，实现了一个处理数据的需求交付业务测试使用，更多 API 和功能的使用方法建议查询官网，网上很多博客写的东西太简单，写得也不怎么样</p>
+</section>
+    
+
+    <footer id="post-meta" class="clearfix">
+        <a href="/about/">
+        <img class="avatar" src="/images/mine.png">
+        <div>
+            <span class="dark">一个极其普通的程序员</span>
+            <span></span>
+        </div>
+        </a>
+        <section id="sharing">
+            <!--
+            <a title="Share to Twitter" class="twitter" href="https://twitter.com/intent/tweet?text=http://yoursite.com/2020/01/19/%E7%94%A8%20Python%20%E8%BF%99%E6%A0%B7%E5%A4%84%E7%90%86%20Excel%20%E5%BE%88%E7%AE%80%E5%8D%95/ - 用 Python 这样处理 Excel 很简单 @" target="_blank" rel="noopener"><span class="icon-twitter">tweet</span></a>
+            <a title="Share to Facebook" class="facebook" href="#" onclick="
+                window.open(
+                  'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),
+                  'facebook-share-dialog',
+                  'width=626,height=436');
+                return false;"><span class="icon-facebook-sign">Share</span>
+            </a>
+            -->
+        </section>
+    </footer>
+
+
+  <section id="comment">
+    <button class="btn" id="loadcmts" onclick="cmts.load();">加载评论</button>
+    <div id="gitment"></div>
+    <script src='/js/gitment.browser.js'></script>
+    <link rel="stylesheet" href=''>
+    <script>
+      var cmts={
+        load:function cmts(){
+          var gitment = new Gitment({
+          
+            id: "用 Python 这样处理 Excel 很简单",
+          
+            owner: "",
+            repo: "",
+            oauth: {
+              client_id: "",
+              client_secret: "",
+            },
+          })
+          gitment.render('gitment');
+          var loadcmt = document.getElementById("loadcmts");
+          var imyourfather = loadcmt.parentNode;
+          imyourfather.removeChild(loadcmts)
+        }
+      }
+    </script>
+  </section>
+
+
+	<footer id="footer">
+	<div id="social">
+		<p class="small">©  Henry Woo in CHJ Inc.
+		</p>
+	</div>
+</footer>
+
+</section>
+
+	<script src="//cdnjs.loli.net/ajax/libs/instantclick/3.0.1/instantclick.min.js" data-no-instant></script>
+	<script data-no-instant>
+		
+		InstantClick.init('mousedown');
+	</script>
+
+
+
