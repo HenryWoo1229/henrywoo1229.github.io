@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+
+  <meta name="description" content="Github （ https://github.com/ ）是全球最大的开源社区，也被称作全球最大的同性交友网站，大部分的程序员都会在上面提交自己的代码，很多优秀的开源作品也会放在上面，比如：springBoot，greenDAO，EventBus 等
+我们可以利用 Github 的搜索功能，寻找自">
+
+
+<link rel="alternate" href="/atom.xml" title="一个极其普通的程序员" type="application/atom+xml">
+<meta name="theme-color" content="#a1d0f6">
+<title>Github 搜索的正确姿势 - 一个极其普通的程序员</title>
+<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+<link rel="shortcut icon" href="/favicon.png">
+
+<link rel="stylesheet" href="/css/style.css">
+
+<nav class="main-nav">
+
+	
+	    <a href="/">← 主页</a>
+	
+	
+	    <a href="/about/">About</a>
+	
+	    <a href="/archives/">Archives</a>
+	
+	
+	<!--
+	<a class="cta" href="/atom.xml" data-no-instant>订阅</a>
+	-->
+</nav>
+
+<section id="wrapper">
+    <article class="post">
+    <header>
+        
+            <h1>Github 搜索的正确姿势</h1>
+        
+        <h2 class="headline">Apr 25 2020
+        
+        </h2>
+    </header>
+</article>
+<section id="post-body"><p>Github （ <a href="https://github.com/" target="_blank" rel="noopener">https://github.com/</a> ）是全球最大的开源社区，也被称作全球最大的同性交友网站，大部分的程序员都会在上面提交自己的代码，很多优秀的开源作品也会放在上面，比如：springBoot，greenDAO，EventBus 等</p>
+<p>我们可以利用 Github 的搜索功能，寻找自己感兴趣或者有帮助的开源作品，But，如果我们仍然只是简单的在搜索框里输入譬如 “image”，或者 “communicate” 这样的字段，往往效率很低，因为有大量我们不感兴趣的项目会被过滤出来</p>
+<p>正确的姿势，是学会几招关键字的用法，在我们限定的条件中查找项目，提高检索的效率</p>
+<p>先简单说下一个 GitHub 项目搜索中存在哪些搜索项</p>
+<p><img src="images/image-20200425214509076.png" alt=""></p>
+<h4 id="仓库名称中做限定"><a href="#仓库名称中做限定" class="headerlink" title="仓库名称中做限定"></a>仓库名称中做限定</h4><p><strong>使用 <code>in:name</code> 关键字</strong></p>
+<p>比如要查找包含 image 字段的仓库名，使用 <code>in:name image</code></p>
+<p><img src="/Users/mac/wuhao_Proj/my_Blog/my_hexo_blog/blog_images/image-20200425211933388.png" alt=""></p>
+<p>仓库总数是 256919，而不加限定词直接搜 image</p>
+<p><img src="/Users/mac/wuhao_Proj/my_Blog/my_hexo_blog/blog_images/image-20200425212205287.png" alt=""></p>
+<p>仓库数 523090，整整多了一倍</p>
+<h4 id="stars-中做限定"><a href="#stars-中做限定" class="headerlink" title="stars 中做限定"></a>stars 中做限定</h4><p><strong>使用 <code>stars:&gt;数字</code> 关键字</strong></p>
+<p>高 star 一般意味着项目更加热门，以及优质，我们通过关键字将 star 数限定在 500 以上</p>
+<p>使用 <code>stars:&gt;500</code></p>
+<p><img src="/Users/mac/wuhao_Proj/my_Blog/my_hexo_blog/blog_images/image-20200425212849841.png" alt=""></p>
+<p>观察仓库数，进一步减少到 275 个</p>
+<h4 id="编程语言中做限定"><a href="#编程语言中做限定" class="headerlink" title="编程语言中做限定"></a>编程语言中做限定</h4><p><strong>使用 <code>language:</code> 关键字</strong></p>
+<p>我们只想看 Python 的项目，使用 <code>language:python</code></p>
+<p><img src="/Users/mac/wuhao_Proj/my_Blog/my_hexo_blog/blog_images/image-20200425213300483.png" alt=""></p>
+<p>范围继续被缩小到只有 39 个，下一步继续精简搜索内容</p>
+<h4 id="限定更新时间"><a href="#限定更新时间" class="headerlink" title="限定更新时间"></a>限定更新时间</h4><p><strong>使用 <code>pushed:&gt;YYYY-MM-DD</code> 关键字</strong></p>
+<p>我们希望这个项目近期仍然在更新，比如最近一个月还在提交代码，使用<code>pushed:&gt;2020-03-25</code></p>
+<p><img src="/Users/mac/wuhao_Proj/my_Blog/my_hexo_blog/blog_images/image-20200425213719334.png" alt=""></p>
+<p>活跃的项目还有 8 个</p>
+<h4 id="限定描述"><a href="#限定描述" class="headerlink" title="限定描述"></a>限定描述</h4><p><strong>使用 <code>in:description</code> 关键字</strong></p>
+<p>想限定描述内容里出现 download 字段，使用 <code>in:description download</code></p>
+<p><img src="/Users/mac/wuhao_Proj/my_Blog/my_hexo_blog/blog_images/image-20200425215306378.png" alt=""></p>
+<p>目标项目再一次缩小，圈定在 4 个</p>
+<p>基本上到这里，我们就可以慢慢挑选合适的项目来进一步的研究了</p>
+<p>当然，还有其他的搜索关键字，如下</p>
+<h4 id="限定用户"><a href="#限定用户" class="headerlink" title="限定用户"></a>限定用户</h4><p><strong>使用 <code>user:</code> 关键字</strong></p>
+<p>例如我想看看 Android 大神 Jake Wharton 的作品，使用 <code>user:jakewharton</code></p>
+<p><img src="/Users/mac/wuhao_Proj/my_Blog/my_hexo_blog/blog_images/image-20200425214429660.png" alt=""></p>
+<h4 id="限定-README-md-里的字段"><a href="#限定-README-md-里的字段" class="headerlink" title="限定 README.md 里的字段"></a>限定 README.md 里的字段</h4><p><strong>使用 <code>in:readme</code> 关键字</strong></p>
+<p><img src="/Users/mac/wuhao_Proj/my_Blog/my_hexo_blog/blog_images/image-20200425215547950.png" alt=""></p>
+<h4 id="限定-License"><a href="#限定-License" class="headerlink" title="限定 License"></a>限定 License</h4><p>**使用 <code>license:</code> 关键字</p>
+<p>想要使用开源项目做商业用途的话，要注意选择合适的开源协议，它们的授权范围不一样，常见的协议有：Apache-2.0，MIT，BSD</p>
+<p><img src="/Users/mac/wuhao_Proj/my_Blog/my_hexo_blog/blog_images/image-20200426082836529.png" alt="image-20200426082836529"></p>
+<p>怎么样，看到这里，是不是感觉 Github 更加好用了，打开浏览器马上尝试一下吧，另外，举手之劳，点下在看，予人玫瑰，手有余香</p>
+</section>
+    
+
+    <footer id="post-meta" class="clearfix">
+        <a href="/about/">
+        <img class="avatar" src="/images/mine.png">
+        <div>
+            <span class="dark">一个极其普通的程序员</span>
+            <span></span>
+        </div>
+        </a>
+        <section id="sharing">
+            <!--
+            <a title="Share to Twitter" class="twitter" href="https://twitter.com/intent/tweet?text=http://yoursite.com/2020/04/25/Github%20%E6%90%9C%E7%B4%A2%E7%9A%84%E6%AD%A3%E7%A1%AE%E5%A7%BF%E5%8A%BF/ - Github 搜索的正确姿势 @" target="_blank" rel="noopener"><span class="icon-twitter">tweet</span></a>
+            <a title="Share to Facebook" class="facebook" href="#" onclick="
+                window.open(
+                  'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),
+                  'facebook-share-dialog',
+                  'width=626,height=436');
+                return false;"><span class="icon-facebook-sign">Share</span>
+            </a>
+            -->
+        </section>
+    </footer>
+
+
+  <section id="comment">
+    <button class="btn" id="loadcmts" onclick="cmts.load();">加载评论</button>
+    <div id="gitment"></div>
+    <script src='/js/gitment.browser.js'></script>
+    <link rel="stylesheet" href=''>
+    <script>
+      var cmts={
+        load:function cmts(){
+          var gitment = new Gitment({
+          
+            id: "Github 搜索的正确姿势",
+          
+            owner: "",
+            repo: "",
+            oauth: {
+              client_id: "",
+              client_secret: "",
+            },
+          })
+          gitment.render('gitment');
+          var loadcmt = document.getElementById("loadcmts");
+          var imyourfather = loadcmt.parentNode;
+          imyourfather.removeChild(loadcmts)
+        }
+      }
+    </script>
+  </section>
+
+
+	<footer id="footer">
+	<div id="social">
+		<p class="small">©  Henry Woo in CHJ Inc.
+		</p>
+	</div>
+</footer>
+
+</section>
+
+	<script src="//cdnjs.loli.net/ajax/libs/instantclick/3.0.1/instantclick.min.js" data-no-instant></script>
+	<script data-no-instant>
+		
+		InstantClick.init('mousedown');
+	</script>
+
+
+
