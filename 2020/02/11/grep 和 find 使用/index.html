@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+
+  <meta name="description" content="在 Unix/Linux 系统中自带了一套全家桶工具，它们强大的功能帮助 shell 命令执行各种查询，检索，统计等操作更加高效便捷，今天来分享几个好用的工具，做一下常用功能的介绍，更多使用参数调用 –help 查询
+grep 文本搜索这个工具用得非常频繁，通常配合管道使用过滤日志内容
+12# 多重">
+
+
+<link rel="alternate" href="/atom.xml" title="一个极其普通的程序员" type="application/atom+xml">
+<meta name="theme-color" content="#a1d0f6">
+<title>grep 和 find 使用 - 一个极其普通的程序员</title>
+<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+<link rel="shortcut icon" href="/favicon.png">
+
+<link rel="stylesheet" href="/css/style.css">
+
+<nav class="main-nav">
+
+	
+	    <a href="/">← 主页</a>
+	
+	
+	    <a href="/about/">About</a>
+	
+	    <a href="/archives/">Archives</a>
+	
+	
+	<!--
+	<a class="cta" href="/atom.xml" data-no-instant>订阅</a>
+	-->
+</nav>
+
+<section id="wrapper">
+    <article class="post">
+    <header>
+        
+            <h1>grep 和 find 使用</h1>
+        
+        <h2 class="headline">Feb 11 2020
+        
+        </h2>
+    </header>
+</article>
+<section id="post-body"><p>在 Unix/Linux 系统中自带了一套全家桶工具，它们强大的功能帮助 shell 命令执行各种查询，检索，统计等操作更加高效便捷，今天来分享几个好用的工具，做一下常用功能的介绍，更多使用参数调用 –help 查询</p>
+<h4 id="grep-文本搜索"><a href="#grep-文本搜索" class="headerlink" title="grep 文本搜索"></a>grep 文本搜索</h4><p>这个工具用得非常频繁，通常配合管道使用过滤日志内容</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 多重过滤</span><br><span class="line">adb logcat |grep -e string1 -e string2</span><br></pre></td></tr></table></figure>
+
+<p>查找文件的内容，*.log 表示当前目录下所有的 log 文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grep string1 *.log</span><br></pre></td></tr></table></figure>
+
+<p>目录中递归地搜代码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># -n 输出匹配行号</span><br><span class="line">grep &quot;inputText&quot; . -R -n</span><br></pre></td></tr></table></figure>
+
+<p>注：在 windows 系统中使用 findstr 做文本搜索</p>
+<h4 id="find-文件查找"><a href="#find-文件查找" class="headerlink" title="find 文件查找"></a>find 文件查找</h4><p>这个工具是查找文件的</p>
+<p>查找当前目录及子目录的 java 文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">find . -name &quot;*.java&quot;</span><br></pre></td></tr></table></figure>
+
+<p>查找多个文件，使用 -print 指定定界符(默认是括号)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">find . \( -name &quot;*.txt&quot; -o -name &quot;*.java&quot;  \) -print</span><br></pre></td></tr></table></figure>
+
+<p>或者使用正则表达式进行多重搜索</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">find . -regex  &quot;.*\(\.txt|\.pdf\)$&quot;</span><br></pre></td></tr></table></figure>
+
+<p>find 强大的地方还可以在搜索到指定文件后进行后续操作</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 找到文件后删除</span><br><span class="line">find . -type f -name &quot;*.tmp&quot; -delete</span><br></pre></td></tr></table></figure></section>
+    
+
+    <footer id="post-meta" class="clearfix">
+        <a href="/about/">
+        <img class="avatar" src="/images/mine.png">
+        <div>
+            <span class="dark">一个极其普通的程序员</span>
+            <span></span>
+        </div>
+        </a>
+        <section id="sharing">
+            <!--
+            <a title="Share to Twitter" class="twitter" href="https://twitter.com/intent/tweet?text=http://yoursite.com/2020/02/11/grep%20%E5%92%8C%20find%20%E4%BD%BF%E7%94%A8/ - grep 和 find 使用 @" target="_blank" rel="noopener"><span class="icon-twitter">tweet</span></a>
+            <a title="Share to Facebook" class="facebook" href="#" onclick="
+                window.open(
+                  'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),
+                  'facebook-share-dialog',
+                  'width=626,height=436');
+                return false;"><span class="icon-facebook-sign">Share</span>
+            </a>
+            -->
+        </section>
+    </footer>
+
+
+  <section id="comment">
+    <button class="btn" id="loadcmts" onclick="cmts.load();">加载评论</button>
+    <div id="gitment"></div>
+    <script src='/js/gitment.browser.js'></script>
+    <link rel="stylesheet" href=''>
+    <script>
+      var cmts={
+        load:function cmts(){
+          var gitment = new Gitment({
+          
+            id: "grep 和 find 使用",
+          
+            owner: "",
+            repo: "",
+            oauth: {
+              client_id: "",
+              client_secret: "",
+            },
+          })
+          gitment.render('gitment');
+          var loadcmt = document.getElementById("loadcmts");
+          var imyourfather = loadcmt.parentNode;
+          imyourfather.removeChild(loadcmts)
+        }
+      }
+    </script>
+  </section>
+
+
+	<footer id="footer">
+	<div id="social">
+		<p class="small">©  Henry Woo in CHJ Inc.
+		</p>
+	</div>
+</footer>
+
+</section>
+
+	<script src="//cdnjs.loli.net/ajax/libs/instantclick/3.0.1/instantclick.min.js" data-no-instant></script>
+	<script data-no-instant>
+		
+		InstantClick.init('mousedown');
+	</script>
+
+
+

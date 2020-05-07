@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+
+  <meta name="description" content="开始着手这事，实在是因为 IDEA 和 Android Studio 会经常使用，而我的电脑 16GB 内存也扛不住这两只内存大老虎，加上还要打开七七八八的其他东西，内存和 CPU 很吃力，所以经常是只能开一个，然后临时要使用另一个时再启动它，总而言之时间就是程序员的生命，实在是等不起它漫长的启动耗">
+
+
+<link rel="alternate" href="/atom.xml" title="一个极其普通的程序员" type="application/atom+xml">
+<meta name="theme-color" content="#a1d0f6">
+<title>一个极其普通的程序员</title>
+<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+<link rel="shortcut icon" href="/favicon.png">
+
+<link rel="stylesheet" href="/css/style.css">
+
+<nav class="main-nav">
+
+	
+	    <a href="/">← 主页</a>
+	
+	
+	    <a href="/about/">About</a>
+	
+	    <a href="/archives/">Archives</a>
+	
+	
+	<!--
+	<a class="cta" href="/atom.xml" data-no-instant>订阅</a>
+	-->
+</nav>
+
+<section id="wrapper">
+    <article class="post">
+    <header>
+        
+        <h2 class="headline">May 07 2020
+        
+        </h2>
+    </header>
+</article>
+<section id="post-body"><p>开始着手这事，实在是因为 IDEA 和 Android Studio 会经常使用，而我的电脑 16GB 内存也扛不住这两只内存大老虎，加上还要打开七七八八的其他东西，内存和 CPU 很吃力，所以经常是只能开一个，然后临时要使用另一个时再启动它，总而言之时间就是程序员的生命，实在是等不起它漫长的启动耗时</p>
+<p>解决方案必须是用一个顺手的代码编辑器，界面好看（颜值即一切），能支持编码，编译，支持插件等，这样的工具其实应该不少的，纯粹是之前用过 sublime，而且前一阵也在它上面配置好了类似 IDEA 的 Live Template 功能，所以就准备用它啦</p>
+<p>以下，都是基于 Windows x64 的 Sublime Text 3.2.2 版本进行</p>
+<h4 id="Java-的编码"><a href="#Java-的编码" class="headerlink" title="Java 的编码"></a>Java 的编码</h4><p>要编码，那必须要能关联工程之间的代码（这篇有写到：），所以导入项目的工程之后简单一操作，这一项就 get 了</p>
+<h4 id="Java-的编译"><a href="#Java-的编译" class="headerlink" title="Java 的编译"></a>Java 的编译</h4><p>sublime 已经自带 Java 的编译工具，具体在 Tools-Build System-JavaC，但我们的工程是 Maven，默认是没有的，但 Sublime 依靠它强大的 Package Control 扩展 Maven 不在话下，具体网上有很多配置信息，这里我采用自定义的方式，如下</p>
+<p>IDEA 在对 maven 项目编译时实际上就是依赖它默认带的 mvn 命令行工具，位置在<br>%IDEA_HOME%\plugins\maven\lib\maven3\bin\mvn.cmd<br>首先在 IDEA 里执行一次工程的 build 操作，会在 console 的第一行输出具体的执行命令，拷贝它，再存入一个批处理 bat 文件中，这样执行这个文件实际上就是执行编译操作了。所以在 sublime 的<br>Tools-Build System-New Build System… 中</p>
+<p><img src="https://note.youdao.com/yws/res/9726/E7E7E27E23674D42856A7ACD5E22D0E2" alt="image"></p>
+<p>将该 bat 文件的完整路径（不使用中文和空格命名是程序员的一个好习惯）粘贴到 打开的文件的 “shell_cmd” 中。注意文件分隔符要转义，用两个反斜杠</p>
+<p><img src="https://note.youdao.com/yws/res/9731/7FB1EC068F774A35B73BAF6A4F1F3263" alt="image"></p>
+<p>将该文件保存为 .sublime-build 后缀。然后进入 Tools-Build System 中勾选该名字那一项，通过 Tools-Build 或者 Ctrl + B 就能启动该脚本进行编译了</p>
+<p><img src="https://note.youdao.com/yws/res/9742/63701B5CFA66476AA4E64D53FF2A8E86" alt="image"></p>
+<h4 id="Java-代码提示"><a href="#Java-代码提示" class="headerlink" title="Java 代码提示"></a>Java 代码提示</h4><p>代码提示极大提高了码的效率，大部分程序员离开它已经寸步难行了，所以必须给适配上。默认还是没有，所以继续使用 Package Control（快捷键：Ctrl + Shift + P）调出，选择<br>Package Control：Add Repository</p>
+<p><img src="https://note.youdao.com/yws/res/9757/0F870619164C4633A3DD28094505E04E" alt="image"></p>
+<p>在 Sublime 底部弹出的输入框输入：<br><a href="https://github.com/tushortz/JavaIME" target="_blank" rel="noopener">https://github.com/tushortz/JavaIME</a></p>
+<p><img src="https://note.youdao.com/yws/res/9765/2484ECB4A832421DAAF48844A89EDC54" alt="image"></p>
+<p>然后再调出 Package Control，这次选择 Install Package</p>
+<p><img src="https://note.youdao.com/yws/res/9769/971B6A33DD164598822EB009155EF829" alt="image"></p>
+<p>会等待几秒，然后弹出一个输入框，里面输入 JavaIME（我已经安装了，所以截图里没有再显示出来），然后点击，Sublime 会进行安装操作</p>
+<p><img src="https://note.youdao.com/yws/res/9775/E38A53676FA5457AA6F31EB8FD4E80AE" alt="image"></p>
+<p>安装完毕后，尝试输入代码，会显示代码提示了</p>
+<p><img src="https://note.youdao.com/yws/res/9779/1EB054D68557452887F7048BC79FF37A" alt="image"></p>
+<p>不过这有个缺点，只能提示 Java 基础类库的代码，如果工程中引入了第三方库，则无法提示，目前我还没找到这样的插件，如果有的话，那肯定会更加完美</p>
+<p>今天分享了下 Sublime 中支持 Java 的一些基础操作，总而言之，在不需要进行 Debug 的时候使用 Sublime 进行简单修改以及阅读代码是非常方便的。</p>
+</section>
+    
+
+
+  <section id="comment">
+    <button class="btn" id="loadcmts" onclick="cmts.load();">加载评论</button>
+    <div id="gitment"></div>
+    <script src='/js/gitment.browser.js'></script>
+    <link rel="stylesheet" href=''>
+    <script>
+      var cmts={
+        load:function cmts(){
+          var gitment = new Gitment({
+          
+            owner: "",
+            repo: "",
+            oauth: {
+              client_id: "",
+              client_secret: "",
+            },
+          })
+          gitment.render('gitment');
+          var loadcmt = document.getElementById("loadcmts");
+          var imyourfather = loadcmt.parentNode;
+          imyourfather.removeChild(loadcmts)
+        }
+      }
+    </script>
+  </section>
+
+
+	<footer id="footer">
+	<div id="social">
+		<p class="small">©  Henry Woo in CHJ Inc.
+		</p>
+	</div>
+</footer>
+
+</section>
+
+	<script src="//cdnjs.loli.net/ajax/libs/instantclick/3.0.1/instantclick.min.js" data-no-instant></script>
+	<script data-no-instant>
+		
+		InstantClick.init('mousedown');
+	</script>
+
+
+

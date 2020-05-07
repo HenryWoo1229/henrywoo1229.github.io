@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+
+  <meta name="description" content="Android 系统基于 Linux 的内核构建起来，因此统计应用消耗的内存和占用的 CPU 时非常方便，本文介绍统计 CPU 和内存的命令，以及实现自动化统计的思路
+CPU 的统计Linux 提供了非常简单的一个命令 top，可以查看应用的 CPU 和内存占用情况，Android shell 下也">
+
+
+<link rel="alternate" href="/atom.xml" title="一个极其普通的程序员" type="application/atom+xml">
+<meta name="theme-color" content="#a1d0f6">
+<title>统计 Android 应用的 CPU 和内存 - 一个极其普通的程序员</title>
+<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+<link rel="shortcut icon" href="/favicon.png">
+
+<link rel="stylesheet" href="/css/style.css">
+
+<nav class="main-nav">
+
+	
+	    <a href="/">← 主页</a>
+	
+	
+	    <a href="/about/">About</a>
+	
+	    <a href="/archives/">Archives</a>
+	
+	
+	<!--
+	<a class="cta" href="/atom.xml" data-no-instant>订阅</a>
+	-->
+</nav>
+
+<section id="wrapper">
+    <article class="post">
+    <header>
+        
+            <h1>统计 Android 应用的 CPU 和内存</h1>
+        
+        <h2 class="headline">Apr 27 2020
+        
+        </h2>
+    </header>
+</article>
+<section id="post-body"><p>Android 系统基于 Linux 的内核构建起来，因此统计应用消耗的内存和占用的 CPU 时非常方便，本文介绍统计 CPU 和内存的命令，以及实现自动化统计的思路</p>
+<h4 id="CPU-的统计"><a href="#CPU-的统计" class="headerlink" title="CPU 的统计"></a>CPU 的统计</h4><p>Linux 提供了非常简单的一个命令 <code>top</code>，可以查看应用的 CPU 和内存占用情况，Android shell 下也可以直接使用它，输入如下命令就能够在窗口中循环输出 CPU 占用靠前的应用进程</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> adb shell top</span></span><br><span class="line"><span class="meta">400%</span><span class="bash">cpu  67%user   7%nice  63%sys 251%idle   1%iow   9%irq   2%sirq   0%host</span></span><br><span class="line">  PID USER         PR  NI VIRT  RES  SHR S[%CPU] %MEM     TIME+ ARGS</span><br><span class="line"> 2400 system       20   0 4.1G  64M  37M S 39.3   1.7   0:45.45 com.example+</span><br><span class="line"> 1050 system       18  -2 4.3G 138M  94M S 15.0   3.8   0:40.05 system_server</span><br><span class="line"> 3464 u0_a39       20   0 2.0G 238M  59M S 14.6   6.5   0:32.29 com.abc.test+</span><br></pre></td></tr></table></figure>
+
+<p>第 9 行 [%CPU] 和 第 10 行 %MEM 则分别对应进程的 CPU 占用率百分比和内存占用率百分比</p>
+<p>这里 CPU 所在的列被中括号框选住，表示排序方式按 CPU 从高到低降序排列</p>
+<p>另外，留意第一行第一列，显示的是 400%cpu，这是什么意思呢？</p>
+<p>这表示 CPU 核心数不止一个，在这里有四个，所以就是 4 * 100%</p>
+<p>想要查询这个命令传递参数的用法，可以输入</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> adb shell top --<span class="built_in">help</span></span></span><br><span class="line">usage: top [-Hbq] [-k FIELD,] [-o FIELD,] [-s SORT] [-n NUMBER] [-d SECONDS] [-p PID,] [-u USER,]</span><br><span class="line"></span><br><span class="line">Show process activity in real time.</span><br><span class="line"></span><br><span class="line">-H	Show threads</span><br><span class="line">-k	Fallback sort FIELDS (default -S,-%CPU,-ETIME,-PID)</span><br><span class="line">-o	Show FIELDS (def PID,USER,PR,NI,VIRT,RES,SHR,S,%CPU,%MEM,TIME+,CMDLINE)</span><br><span class="line">-O	Add FIELDS (replacing PR,NI,VIRT,RES,SHR,S from default)</span><br><span class="line">-s	Sort by field number (1-X, default 9)</span><br><span class="line">-b	Batch mode (no tty)</span><br><span class="line">-d	Delay SECONDS between each cycle (default 3)</span><br><span class="line">-n	Exit after NUMBER iterations</span><br><span class="line">-p	Show these PIDs</span><br><span class="line">-u	Show these USERs</span><br><span class="line">-q	Quiet (no header lines)</span><br></pre></td></tr></table></figure>
+
+
+
+<p>这里面重点提示一下 <code>-p</code> 参数，表示只输出指定进程 ID，<code>-H</code> 参数，表示输出线程的占用率</p>
+<p>我们发现，这个命令只是把结果打印到窗口里，如果要保存到文件中做进一步分析，或者提供给开发排查问题，可以输入</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> adb shell top &gt; file.txt</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>这样就保存到文件中了</p>
+<p>另外，上面提到默认情况下是按 CPU 降序排列，使用 <code>-s 列号</code> 的参数可以按照其他列进行降序排列，比如按内存占用降序</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> adb shell top -s 10</span></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<p>Android 中，除了 top 命令外，还有一个命令用来统计最近一段时间内的 CPU 占用率，这在快速分析最近 CPU 占用时非常有用</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> adb shell dumpsys cpuinfo</span></span><br><span class="line">Load: 7.88 / 8.13 / 5.81</span><br><span class="line">CPU usage from 372745ms to 72694ms ago (2018-10-18 20:10:37.725 to 2018-10-18 20:15:37.776):</span><br><span class="line"><span class="meta">  39%</span><span class="bash"> 2400/com.xxx.xxx.xx: 29% user + 10% kernel / faults: 708419 minor</span></span><br><span class="line"><span class="meta">  15%</span><span class="bash"> 1050/system_server: 9.6% user + 5.5% kernel / faults: 29353 minor</span></span><br><span class="line"><span class="meta">  13%</span><span class="bash"> 1863/com.android.phone: 9.5% user + 4.1% kernel / faults: 113330 minor</span></span><br><span class="line"><span class="meta">  13%</span><span class="bash"> 3464/com.yy.yyy.yyyy: 8.5% user + 4.7% kernel / faults: 24530 minor</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>从输出内容中，可以读到，这是一段 20:10:37.725 到 20:15:37.776 这五分钟内的 CPU 占用率统计</p>
+<p>这段时间里，占用最高的应用占比为 39%，它的包名是 com.xxx.xxx.xx</p>
+<p>其中 29% 为用户态，10% 为内核态</p>
+<p>CPU 占用率统计的原理是什么呢？我这里以 Android 8.1 系统来解读一下</p>
+<p>每个应用启动以后，会随机分配到一个 ID 值，叫做 <code>PID</code>，可以通过 <code>ps</code> 命令查询应用的包名时得到</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> adb shell ps |grep com.android.settings</span></span><br><span class="line">system        4603   543 4378288  43428 0                   0 S com.android.settings</span><br></pre></td></tr></table></figure>
+
+
+
+<p>这里第二列的数字就是 PID，4603</p>
+<p>应用启动以后，需要 CPU 做运算时，就会占用 CPU 的时间片让它去替自己做事，系统就会在某个位置写入应用的 CPU 占用时间，要查看这个时间，可以输入命令，以下命令中的 4603，需要替换为实际情况下的 PID 值</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> adb shell cat /proc/4603/<span class="built_in">stat</span></span></span><br><span class="line">4603 (ndroid.settings) S 543 543 0 0 -1 1077936448 8978 0 13 0 4 6 0 0 20 0 11 0 5699 4483366912 10857 18446744073709551615 1 1 0 0 0 0 4612 0 1073775864 0 0 0 17 3 0 0 0 0 0 0 0 0 0 0 0 0 0</span><br></pre></td></tr></table></figure>
+
+
+
+<p>其中第 14 和 15 列的数字，分表表示应用在用户态下的 CPU 时间以及在内核态下的 CPU 时间</p>
+<p>依据是 LInux 系统 proc 描述</p>
+<p><a href="http://man7.org/linux/man-pages/man5/proc.5.html" target="_blank" rel="noopener">http://man7.org/linux/man-pages/man5/proc.5.html</a></p>
+<p>这两个数求和便是应用从启动到现在，一共使用的 CPU 时间</p>
+<p><strong>想要求得某个时间段中 CPU 的占用时间，则在 T1 时间，抓一次此数值，经过一段时间后，在 T2 时间，再抓一次此数值，求 T2 和 T1 数值之差便得到该时间段内的占用时间</strong></p>
+<p>既然我们是计算应用的 CPU 占用率，那么从哪里获得系统的占用时间呢？答案如下</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> adb shell cat /proc/<span class="built_in">stat</span></span></span><br><span class="line">cpu  227074 29957 236622 747320 1822 34855 6375 0 0 0</span><br><span class="line">cpu0 67340 7410 77242 142887 526 21616 4121 0 0 0</span><br><span class="line">cpu1 64458 8939 77368 157790 717 9491 1260 0 0 0</span><br><span class="line">cpu2 53326 7030 40617 216464 321 2078 615 0 0 0</span><br><span class="line">cpu3 41950 6578 41395 230179 258 1670 379 0 0 0</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+
+
+<p>对于每个数字的含义，仍然可参考上述页面下 Linux 对 proc 的解释</p>
+<p>这里将输出结果第一行 cpu 字段后面的数字求和，即得到当前时间系统 CPU 的占用时间</p>
+<p>分别抓取 T1 时刻和 T2 时刻系统 CPU 的占用时间，求差数就得到这个时间段内整个系统对 CPU 的占用</p>
+<p>那么我们就可以算出来应用在 T1 和 T2 时间段内的 CPU 占用率了</p>
+<h4 id="内存的统计"><a href="#内存的统计" class="headerlink" title="内存的统计"></a>内存的统计</h4><p>内存的统计原理相比于 CPU 更加复杂，这里不展开来谈，我们先学习统计的方法</p>
+<p>Android 中推荐使用 <code>dumpsys</code> 命令去统计内存，而不是使用 top，因为它们计算方式上略有差别，我们依据 Android 官方推荐为准，使用如下命令</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> adb shell dumpsys meminfo</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>从这个命令中，我们能提取到总的物理内存值 <code>Total RAM: 3,706,588K (status normal)</code></p>
+<p>如果启动的应用非常多，那么此命令有可能在默认超时时间 10 秒内统计不完，就会报错退出</p>
+<p>增加一个超时参数 -t 秒数，就可以避免这种情况</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> adb shell dumpsys -t 30 meminfo</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>由于多数情况下，我们更关心某个应用的内存占用，可以指定它的包名或者 PID，去针对性的获得结果</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> adb shell dumpsys meminfo com.android.settings</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 或者</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> adb shell dumpsys meminfo 4603</span></span><br><span class="line">** MEMINFO in pid 4603 [com.android.settings] **</span><br><span class="line">                   Pss  Private  Private  SwapPss     Heap     Heap     Heap</span><br><span class="line">                 Total    Dirty    Clean    Dirty     Size    Alloc     Free</span><br><span class="line">                ------   ------   ------   ------   ------   ------   ------</span><br><span class="line">  Native Heap     1318     1276        0        0     6144     3154     2989</span><br><span class="line">  Dalvik Heap      166      148        0        0     1466      954      512</span><br><span class="line"> Dalvik Other      137      136        0        0</span><br><span class="line">        Stack       40       40        0        0</span><br><span class="line">       Ashmem        0        0        0        0</span><br><span class="line">    Other dev        8        0        8        0</span><br><span class="line">     .so mmap      156       64        0        0</span><br><span class="line">    .apk mmap     2148        0     2048        0</span><br><span class="line">    .dex mmap      900        8      820        0</span><br><span class="line">    .oat mmap       75        0        0        0</span><br><span class="line">    .art mmap      477      356        0        0</span><br><span class="line">   Other mmap       10        4        0        0</span><br><span class="line">      Unknown      506      504        0        0</span><br><span class="line">        TOTAL     5941     2536     2876        0     7610     4108     3501</span><br></pre></td></tr></table></figure>
+
+
+
+<p>提取 Pss Total 列的 TOTAL 值即可</p>
+<p>通过不带包名的命令获得总的内存值，就可以计算占用率了</p>
+<p>另外要提醒的是，上述命令执行过程中会消耗一定的 CPU，如果正在统计 CPU，则尽量减少对内存的统计，以免对总 CPU 造成影响</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>以上分享的是通过命令行获取 CPU 和内存统计的方法，这是基础，有了这些理论方法，就可以着手进行自动化工具的开发，让工具实现自己统计和结果展示</p>
+</section>
+    
+
+    <footer id="post-meta" class="clearfix">
+        <a href="/about/">
+        <img class="avatar" src="/images/mine.png">
+        <div>
+            <span class="dark">一个极其普通的程序员</span>
+            <span></span>
+        </div>
+        </a>
+        <section id="sharing">
+            <!--
+            <a title="Share to Twitter" class="twitter" href="https://twitter.com/intent/tweet?text=http://yoursite.com/2020/04/27/%E7%BB%9F%E8%AE%A1Android%E5%BA%94%E7%94%A8%E7%9A%84CPU%E5%92%8C%E5%86%85%E5%AD%98/ - 统计 Android 应用的 CPU 和内存 @" target="_blank" rel="noopener"><span class="icon-twitter">tweet</span></a>
+            <a title="Share to Facebook" class="facebook" href="#" onclick="
+                window.open(
+                  'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),
+                  'facebook-share-dialog',
+                  'width=626,height=436');
+                return false;"><span class="icon-facebook-sign">Share</span>
+            </a>
+            -->
+        </section>
+    </footer>
+
+
+  <section id="comment">
+    <button class="btn" id="loadcmts" onclick="cmts.load();">加载评论</button>
+    <div id="gitment"></div>
+    <script src='/js/gitment.browser.js'></script>
+    <link rel="stylesheet" href=''>
+    <script>
+      var cmts={
+        load:function cmts(){
+          var gitment = new Gitment({
+          
+            id: "统计 Android 应用的 CPU 和内存",
+          
+            owner: "",
+            repo: "",
+            oauth: {
+              client_id: "",
+              client_secret: "",
+            },
+          })
+          gitment.render('gitment');
+          var loadcmt = document.getElementById("loadcmts");
+          var imyourfather = loadcmt.parentNode;
+          imyourfather.removeChild(loadcmts)
+        }
+      }
+    </script>
+  </section>
+
+
+	<footer id="footer">
+	<div id="social">
+		<p class="small">©  Henry Woo in CHJ Inc.
+		</p>
+	</div>
+</footer>
+
+</section>
+
+	<script src="//cdnjs.loli.net/ajax/libs/instantclick/3.0.1/instantclick.min.js" data-no-instant></script>
+	<script data-no-instant>
+		
+		InstantClick.init('mousedown');
+	</script>
+
+
+

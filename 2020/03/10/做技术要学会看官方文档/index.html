@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+
+  <meta name="description" content="程序员在编码开发的过程中，为了减少重复造轮子，总免不了要学习和使用开源库。为此，从对应库的官方网站阅读文档是一个强烈建议养成的好习惯
+先说说为什么不建议直接去 baidu 里找资料
+国内很多平台都可以写技术博客，比如 CSDN，简书，掘金等，当我们想了解某个库的使用方法时通常 baidu 出来的都是">
+
+
+<link rel="alternate" href="/atom.xml" title="一个极其普通的程序员" type="application/atom+xml">
+<meta name="theme-color" content="#a1d0f6">
+<title>做技术要学会看官方文档 - 一个极其普通的程序员</title>
+<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+<link rel="shortcut icon" href="/favicon.png">
+
+<link rel="stylesheet" href="/css/style.css">
+
+<nav class="main-nav">
+
+	
+	    <a href="/">← 主页</a>
+	
+	
+	    <a href="/about/">About</a>
+	
+	    <a href="/archives/">Archives</a>
+	
+	
+	<!--
+	<a class="cta" href="/atom.xml" data-no-instant>订阅</a>
+	-->
+</nav>
+
+<section id="wrapper">
+    <article class="post">
+    <header>
+        
+            <h1>做技术要学会看官方文档</h1>
+        
+        <h2 class="headline">Mar 10 2020
+        
+        </h2>
+    </header>
+</article>
+<section id="post-body"><p>程序员在编码开发的过程中，为了减少重复造轮子，总免不了要学习和使用开源库。为此，从对应库的官方网站阅读文档是一个强烈建议养成的好习惯</p>
+<p>先说说为什么不建议直接去 baidu 里找资料</p>
+<p>国内很多平台都可以写技术博客，比如 CSDN，简书，掘金等，当我们想了解某个库的使用方法时通常 baidu 出来的都是这几个平台里的内容，但是存在以下问题</p>
+<ol>
+<li>写的人太多，不知道谁写得更准确</li>
+<li>有的标题党专门把人骗进去，实际挂了一个转载链接</li>
+<li>写得没有头绪，排版很乱，可读性差</li>
+<li>内容过时，不符合当前最新的版本</li>
+</ol>
+<p>为了避免上述问题，建议我们从官网去寻找答案</p>
+<p>首先，由于官方的文档是第一手资料，无论从准确性还是更新程度都是最好的</p>
+<p>其次，热门的开源库或者框架官网做得也非常棒，无论是描述使用方法，还是示例代码，都简洁明了，可读性非常高</p>
+<p>不过大多数国外的开源库对应的官网都是英文的，给一些程序员带来困扰。实际上不必担心，如果暂时英文不够熟练，google 翻译全文就解决了</p>
+<p>那么，面对官网的内容，如何快速获取信息呢？毕竟我们日常开发工作紧，没有时间慢慢去细品官网的内容（当然如果要吃透某个库，官方文档是强烈推荐要认真去看的）</p>
+<p>首先从 github 上找到这个库，比如消息中间件框架 rockedMQ</p>
+<p><img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1gejqgqfzprj20yu01ujrj.jpg" alt="undefined"></p>
+<p>通常在其 github 的 README.md 里面都会提供官网的 URL</p>
+<p><img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1gejqh0fodkj213m092jto.jpg" alt="undefined"></p>
+<p>然后，在首页中寻找 Getting Started，这是快速了解该库或者框架的核心</p>
+<p>比如 rocketMQ 的这一项就在很醒目的位置</p>
+<p><img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1gejqhc0ty7j216c0wi7f0.jpg" alt="undefined"></p>
+<p>在 Getting Started 页里描述的内容，通常都能让我们立即明白它的用法，并且完成一个小 demo。例如从 rocketMQ 的快速入门里，我们能了解到该框架的依赖项，如何启动服务，关闭服务以及收发消息</p>
+<p>再比如 Android 的 EventBus 库的官网页面，getting started 在底部的位置</p>
+<p><img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1gejqhk3d9xj215s06qjsb.jpg" alt="undefined"></p>
+<p>这里面介绍了如何定义 events，如何 subscribe event 以及如何 post event，并提供了示例代码</p>
+<p>第三，想掌握更多的用法，就需要进入 document page 中寻找答案</p>
+<p>比如 </p>
+<p><img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1gejqhsu5b5j20w60640t8.jpg" alt="undefined"></p>
+<p>完整的描述中，分类也非常清楚，容易找到自己关心的内容</p>
+<p>第四，寻找示例代码</p>
+<p>查看官网资料的过程中，结合代码能更快熟悉其用法</p>
+<p>在 rocketMQ 的 document page 中直接有 sample code</p>
+<p><img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1gejqhzcb9nj216g0igjv3.jpg" alt="undefined"></p>
+<p>在 Android Espresso 的 page 中提供了 sample code 的 github 链接</p>
+<p><img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1gejqi5etkaj20re0900tr.jpg" alt="undefined"></p>
+<p>总结一下，学会看官方文档，就是寻找官网 URL，查看 getting started，查看 full document，阅读 sample code</p>
+</section>
+    
+
+    <footer id="post-meta" class="clearfix">
+        <a href="/about/">
+        <img class="avatar" src="/images/mine.png">
+        <div>
+            <span class="dark">一个极其普通的程序员</span>
+            <span></span>
+        </div>
+        </a>
+        <section id="sharing">
+            <!--
+            <a title="Share to Twitter" class="twitter" href="https://twitter.com/intent/tweet?text=http://yoursite.com/2020/03/10/%E5%81%9A%E6%8A%80%E6%9C%AF%E8%A6%81%E5%AD%A6%E4%BC%9A%E7%9C%8B%E5%AE%98%E6%96%B9%E6%96%87%E6%A1%A3/ - 做技术要学会看官方文档 @" target="_blank" rel="noopener"><span class="icon-twitter">tweet</span></a>
+            <a title="Share to Facebook" class="facebook" href="#" onclick="
+                window.open(
+                  'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),
+                  'facebook-share-dialog',
+                  'width=626,height=436');
+                return false;"><span class="icon-facebook-sign">Share</span>
+            </a>
+            -->
+        </section>
+    </footer>
+
+
+  <section id="comment">
+    <button class="btn" id="loadcmts" onclick="cmts.load();">加载评论</button>
+    <div id="gitment"></div>
+    <script src='/js/gitment.browser.js'></script>
+    <link rel="stylesheet" href=''>
+    <script>
+      var cmts={
+        load:function cmts(){
+          var gitment = new Gitment({
+          
+            id: "做技术要学会看官方文档",
+          
+            owner: "",
+            repo: "",
+            oauth: {
+              client_id: "",
+              client_secret: "",
+            },
+          })
+          gitment.render('gitment');
+          var loadcmt = document.getElementById("loadcmts");
+          var imyourfather = loadcmt.parentNode;
+          imyourfather.removeChild(loadcmts)
+        }
+      }
+    </script>
+  </section>
+
+
+	<footer id="footer">
+	<div id="social">
+		<p class="small">©  Henry Woo in CHJ Inc.
+		</p>
+	</div>
+</footer>
+
+</section>
+
+	<script src="//cdnjs.loli.net/ajax/libs/instantclick/3.0.1/instantclick.min.js" data-no-instant></script>
+	<script data-no-instant>
+		
+		InstantClick.init('mousedown');
+	</script>
+
+
+

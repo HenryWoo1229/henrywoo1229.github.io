@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+
+  <meta name="description" content="早前买了本书，是教学 Python 爬虫的。于是翻了翻第一章和最后一章。第一章讲 Python 的一些基础知识，用于后面章节的使用做铺垫，最后一章讲 Scrapy 框架
+我本身会一些 Python 开发，于是直接从最后一章开始，试着做一个超简单的 Demo 出来玩一玩，毕竟爬虫还是挺火的，多一门技术">
+
+
+<link rel="alternate" href="/atom.xml" title="一个极其普通的程序员" type="application/atom+xml">
+<meta name="theme-color" content="#a1d0f6">
+<title>简单用了回 Scrapy - 一个极其普通的程序员</title>
+<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+<link rel="shortcut icon" href="/favicon.png">
+
+<link rel="stylesheet" href="/css/style.css">
+
+<nav class="main-nav">
+
+	
+	    <a href="/">← 主页</a>
+	
+	
+	    <a href="/about/">About</a>
+	
+	    <a href="/archives/">Archives</a>
+	
+	
+	<!--
+	<a class="cta" href="/atom.xml" data-no-instant>订阅</a>
+	-->
+</nav>
+
+<section id="wrapper">
+    <article class="post">
+    <header>
+        
+            <h1>简单用了回 Scrapy</h1>
+        
+        <h2 class="headline">Dec 29 2019
+        
+        </h2>
+    </header>
+</article>
+<section id="post-body"><p>早前买了本书，是教学 Python 爬虫的。于是翻了翻第一章和最后一章。第一章讲 Python 的一些基础知识，用于后面章节的使用做铺垫，最后一章讲 Scrapy 框架</p>
+<p>我本身会一些 Python 开发，于是直接从最后一章开始，试着做一个超简单的 Demo 出来玩一玩，毕竟爬虫还是挺火的，多一门技术傍身也挺好。为此我来了一趟公司，因为网好，而且座椅舒服</p>
+<p>按照书上写的把相关的模块都装了，然后通过一行启动命令，生成了工程模板，用法上还是挺舒服的</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">D:\Python_Proj&gt;scrapy startproject zhihu</span><br><span class="line">New Scrapy project &#39;zhihu&#39;, using template directory &#39;d:\tools\python37\lib\site-packages\scrapy\templates\project&#39;, created in:</span><br><span class="line">    D:\Python_Proj\zhihu</span><br><span class="line"></span><br><span class="line">You can start your first spider with:</span><br><span class="line">    cd zhihu</span><br><span class="line">    scrapy genspider example example.com</span><br></pre></td></tr></table></figure>
+
+<p>书上讲了一个例子，是爬取知乎 Python 话题下的精华内容。我先把例子的内容简单看了一下，同时在 Chrome 里试着访问作者使用的链接，很不幸，知乎前端团队更新了他们的页面实现，单页的内容不再是按照他写文章时的方式了。当时的方式更简单，每一页都是一个新的页面（URL 不同），通过请求不同的 URL 并直接抓取响应页面的元素就行。现在不同页的 URL 都是一个，发现不能完全按作者的思路来，只能自己重新找找规律</p>
+<p>翻了翻其他章节的内容，有提到异步加载，于是看了一下，按照上面的思路，分析了 Chrome 中的 “F12”，发现每次翻页的时候，XHR （ XML HTTP REQUEST ）会加载到一个请求，继续分析下去发现它们是有规律的</p>
+<p><img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1gejq9me2x9j20i60a574w.jpg" alt="undefined"></p>
+<p>检查 Headers 中的 Request URL，我试着在浏览器打开这个链接，返回了一段 json 字符串，用 json 解析器看了一下</p>
+<p><img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1gejq9welgcj20fr08zglt.jpg" alt="undefined"></p>
+<p>里面的 data 部分，就是每个分页的内容，这里有 10 个元素，表示这一页里有 10 条，其中每一条包含了问题标题，点赞数，评论数，回答摘要等信息。同时也看到了 URL 的规律：limit=10&amp;offset=15</p>
+<p>limit 正好就是限制了单页的元素个数，offset 就是偏移量，是用来表示从第几个元素开始返回，所以思路就出来了，<strong>通过解析 json，就可以获取到我想要的信息</strong></p>
+<p>这些是中间页的内容，首页的情况呢？通过查看网页源代码，发现前 5 条内容都能被找到</p>
+<p><img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1gejqa4rz82j20ny08awfm.jpg" alt="undefined"></p>
+<p>那么首页加载的时候就不是异步的了，是直接随着响应的页面带了这些内容，于是打算先搞个简单的，毕竟我是在做 demo，先把首页的内容扒拉下来看看</p>
+<p>Scrapy 生成的工程自带一些 py 文件，不同的文件是做不同用途的，只需要在对应的文件里撸码，它会自动串联起来过程，如下是它的一个结构</p>
+<p><img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1gejqabhi2gj208q05wjr9.jpg" alt="undefined"></p>
+<p>在 items.py 中定义字段，其实就是要抓取的项目，然后在 spiders 目录下去处理请求部分，这里我新增了一个 py 文件 zhihu_python_spider.py, 去请求服务端。而如下的配置是，我把请求并处理后的结果让框架自动写入到 csv 文件，于是在 settings.py 中添加：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">FEED_URI &#x3D; &#39;zhihu.csv&#39;</span><br><span class="line">FEED_FORMAT &#x3D; &#39;csv&#39;</span><br></pre></td></tr></table></figure>
+
+<p>爬虫中一个比较有用的技能是 xpath 语法，因为定位页面中的元素时需要大量用到它。框架里的 Selector 选择器跟 lxml 三方库中的 Selector 有一些区别，导致我使用时遇到了些问题，于是查询了 Scrapy 的文档解答了遇到的困难</p>
+<p><a href="https://scrapy-chs.readthedocs.io/zh_CN/0.24/topics/selectors.html" target="_blank" rel="noopener">https://scrapy-chs.readthedocs.io/zh_CN/0.24/topics/selectors.html</a></p>
+<p>下面就是抓取的核心代码，有一些知乎提问的 xpath 的位置可能并不完全一致，导致第一个问题的元素被抓到了，第二个问题没有，这里仅为了熟悉用法和思路，就不做深入分析了</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">def parse(self, response):</span><br><span class="line">        item &#x3D; ZhihuItem()</span><br><span class="line">        selector &#x3D; Selector(response)</span><br><span class="line">        links &#x3D; selector.xpath(&#39;&#x2F;&#x2F;div[@class&#x3D;&quot;List-item TopicFeedItem&quot;]&#39;)</span><br><span class="line"></span><br><span class="line">        for index, link in enumerate(links):</span><br><span class="line">            content &#x3D; &#39;%s, &#39; % index</span><br><span class="line">            try:</span><br><span class="line">                title &#x3D; link.xpath(&#39;div&#x2F;h2&#x2F;div&#x2F;a&#x2F;text()&#39;).extract()[0]</span><br><span class="line">                content +&#x3D; &#39;title&#x3D;%s, &#39; % title</span><br><span class="line">                item[&#39;title&#39;] &#x3D; title</span><br><span class="line">                excerpt &#x3D; link.xpath(&#39;div&#x2F;div[2]&#x2F;div[2]&#x2F;span&#x2F;text()&#39;).extract()[0]</span><br><span class="line">                content +&#x3D; &#39;excerpt&#x3D;%s, &#39; % excerpt</span><br><span class="line">                item[&#39;excerpt&#39;] &#x3D; excerpt</span><br><span class="line">                vote_up_count &#x3D; link.xpath(&#39;div&#x2F;div[2]&#x2F;div[3]&#x2F;span&#x2F;button[1]&#x2F;text()&#39;).extract()[0]</span><br><span class="line">                content +&#x3D; &#39;vote_up_count&#x3D;%s, &#39; % vote_up_count</span><br><span class="line">                item[&#39;voteup_count&#39;] &#x3D; vote_up_count</span><br><span class="line">                comment_count &#x3D; link.xpath(&#39;div&#x2F;div[2]&#x2F;div[3]&#x2F;button[1]&#x2F;text()&#39;).extract()[0]</span><br><span class="line">                content +&#x3D; &#39;comment_count&#x3D;%s&#39; % comment_count</span><br><span class="line">                item[&#39;comment_count&#39;] &#x3D; comment_count</span><br><span class="line">            except:</span><br><span class="line">                pass</span><br><span class="line">            print(content)</span><br><span class="line"></span><br><span class="line">        yield item</span><br></pre></td></tr></table></figure>
+
+<p>执行时不能再 pycharm 里跑，要通过命令行的 scrapy 去执行</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">D:\Python_Proj\zhihu&gt;scrapy crawl zhihu</span><br><span class="line">2019-12-29 18:21:51 [scrapy.utils.log] INFO: Scrapy 1.8.0 started (bot: zhihu)</span><br><span class="line">2019-12-29 18:21:51 [scrapy.utils.log] INFO: Versions: lxml 4.4.2.0, libxml2 2.9.5, cssselect 1.1.0, parsel 1.5.2, w3lib 1.21.0, Twisted 19.10.0, Python 3.7.6 (tags&#x2F;v3.7.6:43364a7ae0, Dec 19 2019, 00:42:30) [MSC v.1916 64 bit (AMD64)], pyOpenSSL 19.1.0 (OpenSSL 1.1.1d  10 Sep 2019), cryptography 2.8, Platform Windows-10-10.0.16299-SP0</span><br><span class="line">2019-12-29 18:21:51 [scrapy.crawler] INFO: Overridden settings: &#123;&#39;BOT_NAME&#39;: &#39;zhihu&#39;, &#39;DOWNLOAD_DELAY&#39;: 3, &#39;NEWSPIDER_MODULE&#39;: &#39;zhihu.spiders&#39;, &#39;SPIDER_MODULES&#39;: [&#39;zhihu.spiders&#39;], &#39;USER_AGENT&#39;: &#39;Mozilla&#x2F;5.0 (Windows NT 10.0; WOW64) AppleWebKit&#x2F;537.36 (KHTML, like Gecko) Chrome&#x2F;78.0.3904.97 Safari&#x2F;537.36&#39;&#125;</span><br><span class="line">2019-12-29 18:21:51 [scrapy.extensions.telnet] INFO: Telnet Password: 9a977eff99b2e582</span><br><span class="line">2019-12-29 18:21:51 [scrapy.middleware] INFO: Enabled extensions:</span><br><span class="line">...... 省略更多内容</span><br></pre></td></tr></table></figure>
+
+<p>打开工程目录下的 zhihu.csv</p>
+<p><img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1gejqakfxxsj20io02ujre.jpg" alt="undefined"></p>
+<p>后面会把异步加载的 json 分析也完成，形成一个完整的爬虫工程</p>
+</section>
+    
+
+    <footer id="post-meta" class="clearfix">
+        <a href="/about/">
+        <img class="avatar" src="/images/mine.png">
+        <div>
+            <span class="dark">一个极其普通的程序员</span>
+            <span></span>
+        </div>
+        </a>
+        <section id="sharing">
+            <!--
+            <a title="Share to Twitter" class="twitter" href="https://twitter.com/intent/tweet?text=http://yoursite.com/2019/12/29/%E7%AE%80%E5%8D%95%E7%94%A8%E4%BA%86%E5%9B%9E%20Scrapy/ - 简单用了回 Scrapy @" target="_blank" rel="noopener"><span class="icon-twitter">tweet</span></a>
+            <a title="Share to Facebook" class="facebook" href="#" onclick="
+                window.open(
+                  'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),
+                  'facebook-share-dialog',
+                  'width=626,height=436');
+                return false;"><span class="icon-facebook-sign">Share</span>
+            </a>
+            -->
+        </section>
+    </footer>
+
+
+  <section id="comment">
+    <button class="btn" id="loadcmts" onclick="cmts.load();">加载评论</button>
+    <div id="gitment"></div>
+    <script src='/js/gitment.browser.js'></script>
+    <link rel="stylesheet" href=''>
+    <script>
+      var cmts={
+        load:function cmts(){
+          var gitment = new Gitment({
+          
+            id: "简单用了回 Scrapy",
+          
+            owner: "",
+            repo: "",
+            oauth: {
+              client_id: "",
+              client_secret: "",
+            },
+          })
+          gitment.render('gitment');
+          var loadcmt = document.getElementById("loadcmts");
+          var imyourfather = loadcmt.parentNode;
+          imyourfather.removeChild(loadcmts)
+        }
+      }
+    </script>
+  </section>
+
+
+	<footer id="footer">
+	<div id="social">
+		<p class="small">©  Henry Woo in CHJ Inc.
+		</p>
+	</div>
+</footer>
+
+</section>
+
+	<script src="//cdnjs.loli.net/ajax/libs/instantclick/3.0.1/instantclick.min.js" data-no-instant></script>
+	<script data-no-instant>
+		
+		InstantClick.init('mousedown');
+	</script>
+
+
+

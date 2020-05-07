@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+
+  <meta name="description" content="我相信程序员在解 bug 的过程中，或多或少都遇到过 log 的内容看起来非常“诡异”的问题，甚至跟代码的逻辑相排斥的情况。比如下面这两段代码，是我们测试平台一段实现蓝牙配对过程中，查找蓝牙设备的逻辑
+12345678910111213&amp;#x2F;&amp;#x2F; 代码 1Log.i(TAG, &amp;quo">
+
+
+<link rel="alternate" href="/atom.xml" title="一个极其普通的程序员" type="application/atom+xml">
+<meta name="theme-color" content="#a1d0f6">
+<title>面对 bug，一切从源码看起 - 一个极其普通的程序员</title>
+<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+<link rel="shortcut icon" href="/favicon.png">
+
+<link rel="stylesheet" href="/css/style.css">
+
+<nav class="main-nav">
+
+	
+	    <a href="/">← 主页</a>
+	
+	
+	    <a href="/about/">About</a>
+	
+	    <a href="/archives/">Archives</a>
+	
+	
+	<!--
+	<a class="cta" href="/atom.xml" data-no-instant>订阅</a>
+	-->
+</nav>
+
+<section id="wrapper">
+    <article class="post">
+    <header>
+        
+            <h1>面对 bug，一切从源码看起</h1>
+        
+        <h2 class="headline">Mar 13 2020
+        
+        </h2>
+    </header>
+</article>
+<section id="post-body"><p>我相信程序员在解 bug 的过程中，或多或少都遇到过 log 的内容看起来非常“诡异”的问题，甚至跟代码的逻辑相排斥的情况。比如下面这两段代码，是我们测试平台一段实现蓝牙配对过程中，查找蓝牙设备的逻辑</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 代码 1</span><br><span class="line">Log.i(TAG, &quot;discovery launch, Searching Test Device: &quot; + testDeviceName + &quot;...&quot;);</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 代码2</span><br><span class="line">@Override</span><br><span class="line">public void btOnDeviceFound(BtDevice btDevice) &#123;</span><br><span class="line">    Log.i(TAG, &quot;btOnDeviceFound: &quot; + btDevice.getName());</span><br><span class="line">    </span><br><span class="line">    if (testDeviceName.equals(btDevice.getName()) &#123;</span><br><span class="line">        Log.i(TAG, &quot;target bt device found&quot;);</span><br><span class="line">        testDeviceAddr &#x3D; btDevice.getAddress();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当查看 log 的时候有如下内容</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">21879 7788 I UiTest: discovery launch, Searching Test Device: Remote-1</span><br><span class="line">21879 21895 I UiTest: btOnDeviceFound: BT-1</span><br><span class="line">21879 21895 I UiTest: target bt device found</span><br></pre></td></tr></table></figure>
+
+<p>发现在第一段 log 中，<br>变量 testDeviceName=”Remote-1”，<br>而第二段和第三段结合代码逻辑来看，testDeviceName=”BT-1”</p>
+<p>诡异的事情发生，testDeviceName 前后不一致了</p>
+<p>这里细心的读者会提问，也许是中间某个地方修改了 testDeviceName</p>
+<p>这里我解答一下，testDeviceName 通过构造方法传递进来并初始化，中间没有任何一处代码有重新设置它的值，因此该变量没可能被修改</p>
+<p>还有读者会小心翼翼提问，难道是 Java 代码出错了？</p>
+<p>我认为，这种情况完全可以忽略，200 % 不可能在这里发生</p>
+<p>那么只剩下一种可能，代码一定在哪里存在逻辑漏洞，并且在特定场景下会发生</p>
+<p>熟悉不熟悉，程序员最了解的配方。无论自己怎样自测，总是能被测试人员发现问题</p>
+<p>一切，还是得从源码看起</p>
+<p>由于搜索蓝牙的过程是异步的，因此上面的代码 2 实际是在 SDK 的回调中执行到。经验上，感觉应该从回调（callback）这里作为突破进行排查</p>
+<p>因此开始查找 callback 是如何注册到 SDK 中，打开注册时的源码，找到这里</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">int btRegisterCallback(BtCallback callback) &#123;</span><br><span class="line">    if (callback !&#x3D; null) &#123;</span><br><span class="line">        synchronized(this.mCallbackList) &#123;</span><br><span class="line">            return this.mCallbackList.add(callback) ? 1 : -1;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        return -1;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注册时将我们的 callback 放到了一个 mCallbackList 变量中，顺手查看一下 mCallbackList 是什么类型</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">List&lt;BtCallback&gt; mCallbackList &#x3D; new ArrayList();</span><br></pre></td></tr></table></figure>
+
+<p>原来是一个 List。记住这个细节，继续往下看，由于代码是在执行回调方法时出的异常，那就看看 mCallbackList 是如何执行回调操作的</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">public void btOnDeviceFound(BtDevice device) &#123;</span><br><span class="line">    Iterator var2 &#x3D; BtManager.this.mCallbackList.iterator();</span><br><span class="line"></span><br><span class="line">    while(var2.hasNext()) &#123;</span><br><span class="line">        BtCallback callback &#x3D; (BtCallback)var2.next();</span><br><span class="line">        callback.btOnDeviceFound(device);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可见，当搜索蓝牙设备过程中，一旦有设备找到，则会遍历 mCallbackList 中的元素，并逐一执行回调方法</p>
+<p>结合 mCallbackList 是一个 List 的特性，到这里，心里大概有了结论：</p>
+<p>前序步骤中初始化过一个 Bt 对象，它的成员 testDeviceName=”BT-1”，同时它注册了它的 callback 到 mCallbackList 中，当执行到当前代码时，再次初始化了另一个 Bt 对象，它的成员 testDeviceName=”Remote-1”，它也注册了自己的 callback。由于实际搜索蓝牙设备时，只找到了 “BT-1”，所以触发了第一个 Bt 对象的 btOnDeviceFound，导致输出了本文开头提到的 log</p>
+<p>“作案手法”知道了，得找到证据证明呀。于是，在代码中添加了反注册的代码，重新运行相同的 case，这一次，果然没有再出现</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">I UiTest: discovery launch, Searching Test Device: Remote-1</span><br><span class="line">I UiTest: btOnDeviceFound: BT-1</span><br><span class="line">I UiTest: target bt device found</span><br></pre></td></tr></table></figure>
+
+<p>通过这次一个小的 log 案例分析，我们知道，代码永远是客观的，而人是主观的，如果凭借主观随意推测，则会对分析问题造成非常大的影响，从而在错误的道路上一去难回头</p>
+<p>所以务必记住，程序员排查问题的口号是：面对 bug，一切从源码看起</p>
+</section>
+    
+
+    <footer id="post-meta" class="clearfix">
+        <a href="/about/">
+        <img class="avatar" src="/images/mine.png">
+        <div>
+            <span class="dark">一个极其普通的程序员</span>
+            <span></span>
+        </div>
+        </a>
+        <section id="sharing">
+            <!--
+            <a title="Share to Twitter" class="twitter" href="https://twitter.com/intent/tweet?text=http://yoursite.com/2020/03/13/%E9%9D%A2%E5%AF%B9%20bug%EF%BC%8C%E4%B8%80%E5%88%87%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8B%E8%B5%B7/ - 面对 bug，一切从源码看起 @" target="_blank" rel="noopener"><span class="icon-twitter">tweet</span></a>
+            <a title="Share to Facebook" class="facebook" href="#" onclick="
+                window.open(
+                  'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),
+                  'facebook-share-dialog',
+                  'width=626,height=436');
+                return false;"><span class="icon-facebook-sign">Share</span>
+            </a>
+            -->
+        </section>
+    </footer>
+
+
+  <section id="comment">
+    <button class="btn" id="loadcmts" onclick="cmts.load();">加载评论</button>
+    <div id="gitment"></div>
+    <script src='/js/gitment.browser.js'></script>
+    <link rel="stylesheet" href=''>
+    <script>
+      var cmts={
+        load:function cmts(){
+          var gitment = new Gitment({
+          
+            id: "面对 bug，一切从源码看起",
+          
+            owner: "",
+            repo: "",
+            oauth: {
+              client_id: "",
+              client_secret: "",
+            },
+          })
+          gitment.render('gitment');
+          var loadcmt = document.getElementById("loadcmts");
+          var imyourfather = loadcmt.parentNode;
+          imyourfather.removeChild(loadcmts)
+        }
+      }
+    </script>
+  </section>
+
+
+	<footer id="footer">
+	<div id="social">
+		<p class="small">©  Henry Woo in CHJ Inc.
+		</p>
+	</div>
+</footer>
+
+</section>
+
+	<script src="//cdnjs.loli.net/ajax/libs/instantclick/3.0.1/instantclick.min.js" data-no-instant></script>
+	<script data-no-instant>
+		
+		InstantClick.init('mousedown');
+	</script>
+
+
+

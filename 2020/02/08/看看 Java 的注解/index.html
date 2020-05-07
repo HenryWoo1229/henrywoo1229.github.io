@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+
+  <meta name="description" content="写 Java 的时候时不时能接触到注解的代码。就是那个在类或者方法上出现 @ 符号的地方，比如在方法中使用泛型的时候，如果没有检查类型，IDEA 会自动警告提示，此时在方法名上添加 @SuppressWarnings(“unchecked”) 就可以消除这个警告
+那么今天就先从这个 Suppress">
+
+
+<link rel="alternate" href="/atom.xml" title="一个极其普通的程序员" type="application/atom+xml">
+<meta name="theme-color" content="#a1d0f6">
+<title>看看 Java 的注解 - 一个极其普通的程序员</title>
+<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+<link rel="shortcut icon" href="/favicon.png">
+
+<link rel="stylesheet" href="/css/style.css">
+
+<nav class="main-nav">
+
+	
+	    <a href="/">← 主页</a>
+	
+	
+	    <a href="/about/">About</a>
+	
+	    <a href="/archives/">Archives</a>
+	
+	
+	<!--
+	<a class="cta" href="/atom.xml" data-no-instant>订阅</a>
+	-->
+</nav>
+
+<section id="wrapper">
+    <article class="post">
+    <header>
+        
+            <h1>看看 Java 的注解</h1>
+        
+        <h2 class="headline">Feb 08 2020
+        
+        </h2>
+    </header>
+</article>
+<section id="post-body"><p>写 Java 的时候时不时能接触到注解的代码。就是那个在类或者方法上出现 @ 符号的地方，比如在方法中使用泛型的时候，如果没有检查类型，IDEA 会自动警告提示，此时在方法名上添加 @SuppressWarnings(“unchecked”) 就可以消除这个警告</p>
+<p>那么今天就先从这个 SuppressWarnings 入手开始简单分析下注解是什么</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">@Target(&#123;TYPE, FIELD, METHOD, PARAMETER, CONSTRUCTOR, LOCAL_VARIABLE&#125;)</span><br><span class="line">@Retention(RetentionPolicy.SOURCE)</span><br><span class="line">public @interface SuppressWarnings &#123;</span><br><span class="line">    String[] value();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们看到 SuppressWarnings 是一个 <strong>@interface 的 Java 类型，表示它是一个 Annataion （注解）</strong></p>
+<p>看到它被 @Retention 和 @Target 进行了修饰，用来修饰注解的叫做元注解，在 Java 中有这样几个元注解：</p>
+<p><strong>@Retention、 @Target、 @Document、 @Inherited和@Repeatable（Java 8 加入）</strong></p>
+<h4 id="Retention"><a href="#Retention" class="headerlink" title="@Retention"></a>@Retention</h4><p>表示被修饰的注解生效范围，像 SuppressWarnings 中是 SOURCE，表示 SuppressWarnings 只是作用在源代码，不会生成到 class 文件中。其他的几个作用范围是：</p>
+<ul>
+<li>RetentionPolicy.CLASS</li>
+</ul>
+<p>默认值，表示注解会在 class 文件中存在，但运行时无法获取到</p>
+<ul>
+<li>RetentionPolicy.RUNTIME</li>
+</ul>
+<p>表示注解会在 class 文件中存在，在运行时可以通过反射获取到</p>
+<p><strong>因此，如果是我们自定义注解，那么肯定要使用 RUNTIME 的方式才有意义</strong></p>
+<h4 id="Target"><a href="#Target" class="headerlink" title="@Target"></a>@Target</h4><p>表示被修饰的注解作用的范围</p>
+<ul>
+<li>ElementType.TYPE 作用于类、接口（包括注解类型），枚举</li>
+<li>ElementType.FIELD 作用于域字段、枚举常量</li>
+<li>ElementType.METHOD 作用于方法</li>
+<li>ElementType.PARAMETER 作用于方法参数</li>
+<li>ElementType.CONSTRUCTOR 作用于构造方法</li>
+<li>ElementType.LOCAL_VARIABLE 作用于局部变量</li>
+<li>ElementType.ANNOTATION_TYPE)作用于注解</li>
+<li>ElementType.PACKAGE) 作用于包</li>
+<li>ElementType.TYPE_PARAMETER 作用于类型参数，即泛型类、泛型方法、泛型接口 （Java 8 加入）</li>
+<li>ElementType.TYPE_USE 类型使用（Java 8 加入）</li>
+</ul>
+<p>所以 SuppressWarnings 是可以用于类，接口，方法，成员变量，方法参数，构造方法，局部变量的注解</p>
+<p>以上两个注解是使用得比较多的，其他的几个元注解今天暂不介绍。注解在 Java 代码中主要是用来读取数据用的，既然我们定义好了自己的注解，<strong>那么读取的话，使用的是反射</strong></p>
+<h4 id="读取注解"><a href="#读取注解" class="headerlink" title="读取注解"></a>读取注解</h4><ul>
+<li>isAnnotationPresent</li>
+</ul>
+<p>判断是否存在对应的 Annatation 对象</p>
+<ul>
+<li>getAnnotation</li>
+</ul>
+<p>获取对应的 Annatation 对象</p>
+<ul>
+<li>getAnnotations</li>
+</ul>
+<p>获取所有对应的 Annatation 对象组</p>
+<p>给一个自定义注解例子，并获取值</p>
+<p>在这个例子中，自定义注解 MyAnnotation，作用于类，域字段以及方法</p>
+<p>对 Test 类以及它的字段和方法都使用该注解修饰，并通过反射获取它们的值</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line">@Target(&#123;ElementType.TYPE, ElementType.FIELD, ElementType.METHOD&#125;)</span><br><span class="line">@Retention(RetentionPolicy.RUNTIME)</span><br><span class="line">@interface MyAnnotation &#123;</span><br><span class="line">    String[] value();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">@MyAnnotation(&quot;className&quot;)</span><br><span class="line">public class Test &#123;</span><br><span class="line">    @MyAnnotation(&quot;fieldName&quot;)</span><br><span class="line">    String field;</span><br><span class="line"></span><br><span class="line">    @MyAnnotation(&quot;methodName&quot;)</span><br><span class="line">    public void method()&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        Class&lt;Test&gt; klass &#x3D; Test.class;</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; 判断是否存在类注解</span><br><span class="line">        boolean hasClassAnno &#x3D; klass.isAnnotationPresent(MyAnnotation.class);</span><br><span class="line">        if (hasClassAnno)&#123;</span><br><span class="line">            &#x2F;&#x2F; 获取该注解</span><br><span class="line">            MyAnnotation myAnnotation &#x3D; klass.getAnnotation(MyAnnotation.class);</span><br><span class="line">            &#x2F;&#x2F; 提取注解的值</span><br><span class="line">            System.out.println(Arrays.toString(myAnnotation.value()));</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        try &#123;</span><br><span class="line">            Field field &#x3D; klass.getDeclaredField(&quot;field&quot;);</span><br><span class="line">            if (field.isAnnotationPresent(MyAnnotation.class))&#123;</span><br><span class="line">                MyAnnotation myAnnotation &#x3D; field.getAnnotation(MyAnnotation.class);</span><br><span class="line">                System.out.println(Arrays.toString(myAnnotation.value()));</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            Method method &#x3D; klass.getMethod(&quot;method&quot;);</span><br><span class="line">            if (method.isAnnotationPresent(MyAnnotation.class))&#123;</span><br><span class="line">                MyAnnotation myAnnotation &#x3D; method.getAnnotation(MyAnnotation.class);</span><br><span class="line">                System.out.println(Arrays.toString(myAnnotation.value()));</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; catch (NoSuchFieldException | NoSuchMethodException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>今天的介绍就到这里，现在是疫情攻坚期，祈祷武汉尽快挺过难关，中国尽快挺过难关</p>
+</section>
+    
+
+    <footer id="post-meta" class="clearfix">
+        <a href="/about/">
+        <img class="avatar" src="/images/mine.png">
+        <div>
+            <span class="dark">一个极其普通的程序员</span>
+            <span></span>
+        </div>
+        </a>
+        <section id="sharing">
+            <!--
+            <a title="Share to Twitter" class="twitter" href="https://twitter.com/intent/tweet?text=http://yoursite.com/2020/02/08/%E7%9C%8B%E7%9C%8B%20Java%20%E7%9A%84%E6%B3%A8%E8%A7%A3/ - 看看 Java 的注解 @" target="_blank" rel="noopener"><span class="icon-twitter">tweet</span></a>
+            <a title="Share to Facebook" class="facebook" href="#" onclick="
+                window.open(
+                  'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),
+                  'facebook-share-dialog',
+                  'width=626,height=436');
+                return false;"><span class="icon-facebook-sign">Share</span>
+            </a>
+            -->
+        </section>
+    </footer>
+
+
+  <section id="comment">
+    <button class="btn" id="loadcmts" onclick="cmts.load();">加载评论</button>
+    <div id="gitment"></div>
+    <script src='/js/gitment.browser.js'></script>
+    <link rel="stylesheet" href=''>
+    <script>
+      var cmts={
+        load:function cmts(){
+          var gitment = new Gitment({
+          
+            id: "看看 Java 的注解",
+          
+            owner: "",
+            repo: "",
+            oauth: {
+              client_id: "",
+              client_secret: "",
+            },
+          })
+          gitment.render('gitment');
+          var loadcmt = document.getElementById("loadcmts");
+          var imyourfather = loadcmt.parentNode;
+          imyourfather.removeChild(loadcmts)
+        }
+      }
+    </script>
+  </section>
+
+
+	<footer id="footer">
+	<div id="social">
+		<p class="small">©  Henry Woo in CHJ Inc.
+		</p>
+	</div>
+</footer>
+
+</section>
+
+	<script src="//cdnjs.loli.net/ajax/libs/instantclick/3.0.1/instantclick.min.js" data-no-instant></script>
+	<script data-no-instant>
+		
+		InstantClick.init('mousedown');
+	</script>
+
+
+

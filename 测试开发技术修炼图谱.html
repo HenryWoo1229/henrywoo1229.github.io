@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+
+  <meta name="description" content="最近整理了一份测试开发的技术图谱，全部手打，后续会在号内分享出来，今天先谈谈其中的几个要素
+有的读者对测试开发是什么还比较陌生，那么先解解惑，回答一下跟测试开发相关的内容
+测试开发是测试还是开发？测试开发，通常在一些大公司，尤其是互联网公司里才会设置这样的岗位。因为互联网大厂对产品质量要求非常高。质">
+
+
+<link rel="alternate" href="/atom.xml" title="一个极其普通的程序员" type="application/atom+xml">
+<meta name="theme-color" content="#a1d0f6">
+<title>测试开发技术修炼图谱 - 一个极其普通的程序员</title>
+<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+<link rel="shortcut icon" href="/favicon.png">
+
+<link rel="stylesheet" href="/css/style.css">
+
+<nav class="main-nav">
+
+	
+	    <a href="/">← 主页</a>
+	
+	
+	    <a href="/about/">About</a>
+	
+	    <a href="/archives/">Archives</a>
+	
+	
+	<!--
+	<a class="cta" href="/atom.xml" data-no-instant>订阅</a>
+	-->
+</nav>
+
+<section id="wrapper">
+    <article class="post">
+    <header>
+        
+            <h1>测试开发技术修炼图谱</h1>
+        
+        <h2 class="headline">May 05 2020
+        
+        </h2>
+    </header>
+</article>
+<section id="post-body"><p>最近整理了一份测试开发的技术图谱，全部手打，后续会在号内分享出来，今天先谈谈其中的几个要素</p>
+<p>有的读者对测试开发是什么还比较陌生，那么先解解惑，回答一下跟测试开发相关的内容</p>
+<h4 id="测试开发是测试还是开发？"><a href="#测试开发是测试还是开发？" class="headerlink" title="测试开发是测试还是开发？"></a>测试开发是测试还是开发？</h4><p>测试开发，通常在一些大公司，尤其是互联网公司里才会设置这样的岗位。因为互联网大厂对产品质量要求非常高。质量这个东西，光靠开发是解决不了的，必须也同时依靠强大的测试团队</p>
+<p>手工测试能显著提高质量吗？在互联网企业里是肯定不能的。互联网企业一大特点就是版本迭代速度非常快，光靠人已经无法测试过来，还必须依靠机器的自动化测试，而且有的测试用例手工是做不到的，比如高并发</p>
+<p>所以测试开发，它是一个隶属于测试团队的岗位，专门来开发测试工具，测试平台这样能够提高测试效率的产品</p>
+<h4 id="一些岗位区别"><a href="#一些岗位区别" class="headerlink" title="一些岗位区别"></a>一些岗位区别</h4><p>与自动化测试岗位有什么区别？如果要严格区分的话，自动化测试岗位更多的偏测试属性，更多地去接触业务，将手工的用例通过自动化工具的方式整合起来，达到自动执行，自动出结果的目的</p>
+<p>所以如果有公司严格区分它们的话，比如我司，那么测试开发接触业务比较少，更多的是帮助自动化测试团队根据自动化需求去开发工具，或者将一些主流测试框架进行二次改造，添加新功能等</p>
+<p>但有的公司不会严格区分，会要求测试开发也同时要做自动化测试工作，这在技能上就提高了一个档次</p>
+<p>还有一些公司，比如阿里巴巴，设置了开发测试这样的岗位，将“测试”和“开发”调整了一下顺序，解读为开发中的测试，也即这个岗位是隶属于开发团队，给开发的代码做测试的，比如代码级的单元测试。通常，测试开发不会做这样的事情，他们服务的对象就是测试团队，或者项目组</p>
+<h4 id="哪些岗位适合转测试开发"><a href="#哪些岗位适合转测试开发" class="headerlink" title="哪些岗位适合转测试开发"></a>哪些岗位适合转测试开发</h4><p>一类是，对测试工作感兴趣的开发人员</p>
+<p>一类是，有编码基础，想更多的从事工具开发的自动化测试人员</p>
+<p>所以，其他岗位的读者在衡量自己是否可以转岗测试开发时，需要先打磨下编程技能</p>
+<h4 id="发展前景"><a href="#发展前景" class="headerlink" title="发展前景"></a>发展前景</h4><p>之前我在拉钩网上抓了数据，对北京地区的测试开发岗位薪资及招聘公司做了统计，得出的结论是，测试开发前景非常好。待遇上跟软件开发不相上下，同时大厂的机会很多</p>
+<p>跟纯开发比起来，在公司的地位肯定还是会略低一些，毕竟开发掌握的是公司的核心代码资源，能够实实在在体现在用户手里的东西，但一个产品真正称为好产品，是离不开测试的，因此开发也离不开优秀的测试，大家是共同体</p>
+<h4 id="有哪些基本要求"><a href="#有哪些基本要求" class="headerlink" title="有哪些基本要求"></a>有哪些基本要求</h4><p>对于有志想踏入测试开发岗位的读者，我总结了几点岗位要求</p>
+<ol>
+<li>语言基础</li>
+</ol>
+<p>Java 是一定得熟练的，Python 也要会写</p>
+<p>如果在编程上是零基础，那么我建议先学 Python</p>
+<ol start="2">
+<li>自动化技能</li>
+</ol>
+<p>这里涉及到移动端和 Web 端，包括 UI 自动化技术和接口自动化技术</p>
+<p>先学哪个其实关系不大，测试思想是共通的，最好是可以结合自己现在所接触的业务来选择</p>
+<ol start="3">
+<li>Linux</li>
+</ol>
+<p>要熟悉 Linux 系统的 Shell 环境，能够熟练使用命令行</p>
+<ol start="4">
+<li>持续集成技术</li>
+</ol>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>后续我会多输出一些测试开发技术的专题，从基础，到进阶，到高级，帮助有志于要从事这个岗位的读者，大家一起成长</p>
+<p>欢迎在看和分享，授人玫瑰，手留余香</p>
+</section>
+    
+
+
+  <section id="comment">
+    <button class="btn" id="loadcmts" onclick="cmts.load();">加载评论</button>
+    <div id="gitment"></div>
+    <script src='/js/gitment.browser.js'></script>
+    <link rel="stylesheet" href=''>
+    <script>
+      var cmts={
+        load:function cmts(){
+          var gitment = new Gitment({
+          
+            id: "测试开发技术修炼图谱",
+          
+            owner: "",
+            repo: "",
+            oauth: {
+              client_id: "",
+              client_secret: "",
+            },
+          })
+          gitment.render('gitment');
+          var loadcmt = document.getElementById("loadcmts");
+          var imyourfather = loadcmt.parentNode;
+          imyourfather.removeChild(loadcmts)
+        }
+      }
+    </script>
+  </section>
+
+
+	<footer id="footer">
+	<div id="social">
+		<p class="small">©  Henry Woo in CHJ Inc.
+		</p>
+	</div>
+</footer>
+
+</section>
+
+	<script src="//cdnjs.loli.net/ajax/libs/instantclick/3.0.1/instantclick.min.js" data-no-instant></script>
+	<script data-no-instant>
+		
+		InstantClick.init('mousedown');
+	</script>
+
+
+

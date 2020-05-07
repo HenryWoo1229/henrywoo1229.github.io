@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+
+  <meta name="description" content="接触过 Linux 系统的应该多少都接触过它强大的全家桶系列中的某些工具，比如 grep, sed, awk, xargs 等
+有时候遇到一些问题，我个人的感受是使用脚本工具比使用编程语言更快捷，更方便，更舒服！比如，文本搜索，我通常的选择优先级都是：脚本工具 &amp;gt; Python &amp;gt; Ja">
+
+
+<link rel="alternate" href="/atom.xml" title="一个极其普通的程序员" type="application/atom+xml">
+<meta name="theme-color" content="#a1d0f6">
+<title>脚本工具的强大 - 一个极其普通的程序员</title>
+<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+<link rel="shortcut icon" href="/favicon.png">
+
+<link rel="stylesheet" href="/css/style.css">
+
+<nav class="main-nav">
+
+	
+	    <a href="/">← 主页</a>
+	
+	
+	    <a href="/about/">About</a>
+	
+	    <a href="/archives/">Archives</a>
+	
+	
+	<!--
+	<a class="cta" href="/atom.xml" data-no-instant>订阅</a>
+	-->
+</nav>
+
+<section id="wrapper">
+    <article class="post">
+    <header>
+        
+            <h1>脚本工具的强大</h1>
+        
+        <h2 class="headline">Dec 27 2019
+        
+        </h2>
+    </header>
+</article>
+<section id="post-body"><p>接触过 Linux 系统的应该多少都接触过它强大的全家桶系列中的某些工具，比如 grep, sed, awk, xargs 等</p>
+<p>有时候遇到一些问题，我个人的感受是使用脚本工具比使用编程语言更快捷，更方便，更舒服！比如，文本搜索，我通常的选择优先级都是：脚本工具 &gt; Python &gt; Java</p>
+<p>一个核心的原因就是，脚本工具是经过大量的人大量的使用测试过的，起码在查询方面的效率和 bug 率，绝对低于自己重新开发一套东西</p>
+<p>今天就举个例子，介绍使用工具一行代码搞定的问题。</p>
+<h4 id="调试"><a href="#调试" class="headerlink" title="调试"></a>调试</h4><p>需要从若干 1GB 的文本文件中，查找某个字段，并且打印输出这个字段在文件中最后一次出现时该行的内容</p>
+<p>这种场景我基本都不考虑用 Java 做，打包运行很费劲，Pass</p>
+<p>用 Python，实现起来也简单，但需要 IDE 啊，总觉得太吃内存了，不是一个大工程我也不考虑开它</p>
+<p>顺理成章想到的就是用 grep 去查找，于是转换为如下的思路：</p>
+<ul>
+<li>需要一个循环，把文件挨个加载进来</li>
+<li>需要从文件尾开始查找</li>
+<li>只输出一行内容就停止</li>
+</ul>
+<p><strong>grep 负责查找，tac 负责从文件尾部开始输出文本，head 负责输出一行内容</strong>，于是一行命令如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">λ tac test.asc |grep &quot;2A1             Rx&quot; |head -n 1</span><br><span class="line">3096.986719 1  2A1             Rx   d 8 02 00 00 00 00 3F 2E 56  Length &#x3D; 231910 BitCount &#x3D; 120 ID &#x3D; 673</span><br><span class="line">grep: write error: Illegal seek</span><br><span class="line">tac: write error</span><br></pre></td></tr></table></figure>
+<p>目的达到了，但 grep 和 tac 报错了，应该是 head 工具在输出一行内容后就关闭了，但是没有关闭 grep 和 tac 的输出流导致，有“洁癖”的我接受不了这种没影响的 error</p>
+<p>由于 grep 自己也能控制只输出一行，于是改进命令为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">λ tac test.asc |grep -m 1 &quot;2A1             Rx&quot;</span><br><span class="line">3096.986719 1  2A1             Rx   d 8 02 00 00 00 00 3F 2E 56  Length &#x3D; 231910 BitCount &#x3D; 120 ID &#x3D; 673</span><br><span class="line">tac: write error</span><br></pre></td></tr></table></figure>
+<p>tac 还是有个 error，原因是 grep 也只是关闭了自己。考虑到 tail 也可以实现从尾部读文件，那么再改为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">λ grep &quot;2A1             Rx&quot; test.asc |tail -n 1</span><br><span class="line">3096.986719 1  2A1             Rx   d 8 02 00 00 00 00 3F 2E 56  Length &#x3D; 231910 BitCount &#x3D; 120 ID &#x3D; 673</span><br></pre></td></tr></table></figure>
+<p>嗯，没有错误了，下面再套个循环即可</p>
+<h4 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h4><p><strong>for 负责循环，grep 负责查找，tail 负责输出一行内容</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">$ for i in &#96;ls *.asc&#96; ; do grep &quot;2A1             Rx&quot;    $i |tail -n 1 ; done</span><br><span class="line">3096.986719 1  2A1             Rx   d 8 02 00 00 00 00 3F 2E 56  Length &#x3D; 231910 BitCount &#x3D; 120 ID &#x3D; 673</span><br><span class="line">3097.043563 1  2A1             Rx   d 8 02 00 00 00 00 7E 56 B9  Length &#x3D; 229925 BitCount &#x3D; 119 ID &#x3D; 673</span><br><span class="line">3097.081294 1  2A1             Rx   d 8 02 00 00 00 00 BD 84 F7  Length &#x3D; 231910 BitCount &#x3D; 120 ID &#x3D; 673</span><br><span class="line">3096.970488 1  2A1             Rx   d 8 02 00 00 00 00 FC B6 34  Length &#x3D; 229910 BitCount &#x3D; 119 ID &#x3D; 673</span><br><span class="line">3096.774315 1  2A1             Rx   d 8 02 00 00 00 01 3B E1 8D  Length &#x3D; 231910 BitCount &#x3D; 120 ID &#x3D; 673</span><br><span class="line">3096.521664 1  2A1             Rx   d 8 02 00 00 00 01 7B 12 CA  Length &#x3D; 229910 BitCount &#x3D; 119 ID &#x3D; 673</span><br><span class="line">3096.605671 1  2A1             Rx   d 8 02 00 00 00 01 BA 44 07  Length &#x3D; 233910 BitCount &#x3D; 121 ID &#x3D; 673</span><br><span class="line">3096.527474 1  2A1             Rx   d 8 02 00 00 00 01 F9 75 44  Length &#x3D; 231910 BitCount &#x3D; 120 ID &#x3D; 673</span><br><span class="line">3096.409386 1  2A1             Rx   d 8 02 00 00 00 02 38 A6 81  Length &#x3D; 229910 BitCount &#x3D; 119 ID &#x3D; 673</span><br><span class="line">3096.151840 1  2A1             Rx   d 8 02 00 00 00 02 77 D7 BE  Length &#x3D; 231925 BitCount &#x3D; 120 ID &#x3D; 673</span><br><span class="line">3096.222497 1  2A1             Rx   d 8 02 00 00 00 02 B6 F1 59  Length &#x3D; 231910 BitCount &#x3D; 120 ID &#x3D; 673</span><br><span class="line">3095.960612 1  2A1             Rx   d 8 02 00 00 00 02 F6 22 96  Length &#x3D; 227910 BitCount &#x3D; 118 ID &#x3D; 673</span><br></pre></td></tr></table></figure>
+
+<p>使用一个 for 循环，接收 ls 命令的结果，再逐个套用 grep 的查询，就把所有的文件结果查完了，非常简单方便</p>
+<h4 id="附录"><a href="#附录" class="headerlink" title="附录"></a>附录</h4><p>以上过程在 Windows 系统上完成</p>
+<p>调试阶段，使用的命令行窗口工具为 cmder，自带 Linux 命令和常用的全家桶工具，可以直接在命令行里使用</p>
+<p>实现阶段，使用的是 cygwin 工具，原因是 Windows 的命令行也有 for 循环，cmder 会自动优先使用 Windows 下的，导致上面的命令报错无法使用</p>
+</section>
+    
+
+    <footer id="post-meta" class="clearfix">
+        <a href="/about/">
+        <img class="avatar" src="/images/mine.png">
+        <div>
+            <span class="dark">一个极其普通的程序员</span>
+            <span></span>
+        </div>
+        </a>
+        <section id="sharing">
+            <!--
+            <a title="Share to Twitter" class="twitter" href="https://twitter.com/intent/tweet?text=http://yoursite.com/2019/12/27/%E8%84%9A%E6%9C%AC%E5%B7%A5%E5%85%B7%E7%9A%84%E5%BC%BA%E5%A4%A7/ - 脚本工具的强大 @" target="_blank" rel="noopener"><span class="icon-twitter">tweet</span></a>
+            <a title="Share to Facebook" class="facebook" href="#" onclick="
+                window.open(
+                  'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),
+                  'facebook-share-dialog',
+                  'width=626,height=436');
+                return false;"><span class="icon-facebook-sign">Share</span>
+            </a>
+            -->
+        </section>
+    </footer>
+
+
+  <section id="comment">
+    <button class="btn" id="loadcmts" onclick="cmts.load();">加载评论</button>
+    <div id="gitment"></div>
+    <script src='/js/gitment.browser.js'></script>
+    <link rel="stylesheet" href=''>
+    <script>
+      var cmts={
+        load:function cmts(){
+          var gitment = new Gitment({
+          
+            id: "脚本工具的强大",
+          
+            owner: "",
+            repo: "",
+            oauth: {
+              client_id: "",
+              client_secret: "",
+            },
+          })
+          gitment.render('gitment');
+          var loadcmt = document.getElementById("loadcmts");
+          var imyourfather = loadcmt.parentNode;
+          imyourfather.removeChild(loadcmts)
+        }
+      }
+    </script>
+  </section>
+
+
+	<footer id="footer">
+	<div id="social">
+		<p class="small">©  Henry Woo in CHJ Inc.
+		</p>
+	</div>
+</footer>
+
+</section>
+
+	<script src="//cdnjs.loli.net/ajax/libs/instantclick/3.0.1/instantclick.min.js" data-no-instant></script>
+	<script data-no-instant>
+		
+		InstantClick.init('mousedown');
+	</script>
+
+
+

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+
+  <meta name="description" content="Java 中的注解在进行框架设计中非常有用，比如 SpringBoot，SpringMVC 框架中，今天就针对注解在数据初始化中的场景进行演示
+数据初始化定义一个注解，用来给对象做初始化工作，同时再定义注入数据的代码，就可以重复地使用注解了
+定义 Java bean 类
+12345678910111">
+
+
+<link rel="alternate" href="/atom.xml" title="一个极其普通的程序员" type="application/atom+xml">
+<meta name="theme-color" content="#a1d0f6">
+<title>注解在数据初始化中的应用 - 一个极其普通的程序员</title>
+<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+<link rel="shortcut icon" href="/favicon.png">
+
+<link rel="stylesheet" href="/css/style.css">
+
+<nav class="main-nav">
+
+	
+	    <a href="/">← 主页</a>
+	
+	
+	    <a href="/about/">About</a>
+	
+	    <a href="/archives/">Archives</a>
+	
+	
+	<!--
+	<a class="cta" href="/atom.xml" data-no-instant>订阅</a>
+	-->
+</nav>
+
+<section id="wrapper">
+    <article class="post">
+    <header>
+        
+            <h1>注解在数据初始化中的应用</h1>
+        
+        <h2 class="headline">Feb 10 2020
+        
+        </h2>
+    </header>
+</article>
+<section id="post-body"><p>Java 中的注解在进行框架设计中非常有用，比如 SpringBoot，SpringMVC 框架中，今天就针对注解在数据初始化中的场景进行演示</p>
+<h4 id="数据初始化"><a href="#数据初始化" class="headerlink" title="数据初始化"></a>数据初始化</h4><p>定义一个注解，用来给对象做初始化工作，同时再定义注入数据的代码，就可以重复地使用注解了</p>
+<p>定义 Java bean 类</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">class Person&#123;</span><br><span class="line">    private String name;</span><br><span class="line">    private int age;</span><br><span class="line">    private String gender;</span><br><span class="line">    </span><br><span class="line">    public String getName() &#123;</span><br><span class="line">        return name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void setName(String name) &#123;</span><br><span class="line">        this.name &#x3D; name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public int getAge() &#123;</span><br><span class="line">        return age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void setAge(int age) &#123;</span><br><span class="line">        this.age &#x3D; age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public String getGender() &#123;</span><br><span class="line">        return gender;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void setGender(String gender) &#123;</span><br><span class="line">        this.gender &#x3D; gender;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>定义注解</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">@Target(ElementType.FIELD)</span><br><span class="line">@Retention(RetentionPolicy.RUNTIME)</span><br><span class="line">@interface injectData &#123;</span><br><span class="line">    String name();</span><br><span class="line"></span><br><span class="line">    int age();</span><br><span class="line"></span><br><span class="line">    String gender();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>定义注解数据注入方法，这里放到一个父类中</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">class Base&#123;</span><br><span class="line">    protected Person person;</span><br><span class="line"></span><br><span class="line">    public Base()&#123;</span><br><span class="line">        try &#123;</span><br><span class="line">            injectAnno();</span><br><span class="line">        &#125; catch (NoSuchFieldException | IllegalAccessException | InstantiationException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    protected void injectAnno() throws NoSuchFieldException, IllegalAccessException, InstantiationException &#123;</span><br><span class="line">        Field field &#x3D; this.getClass().getDeclaredField(&quot;person&quot;);</span><br><span class="line">        Person person &#x3D; (Person) field.getType().newInstance();</span><br><span class="line">        &#x2F;&#x2F; 判断成员变量是否包含该注解</span><br><span class="line">        if (field.isAnnotationPresent(InjectData.class))&#123;</span><br><span class="line">            &#x2F;&#x2F; 获得这个注解对象</span><br><span class="line">            InjectData injectData &#x3D; field.getAnnotation(InjectData.class);</span><br><span class="line">            person.setAge(injectData.age());</span><br><span class="line">            person.setGender(injectData.gender());</span><br><span class="line">            person.setName(injectData.name());</span><br><span class="line">            setPerson(person);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    public Person getPerson() &#123;</span><br><span class="line">        return person;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void setPerson(Person person) &#123;</span><br><span class="line">        this.person &#x3D; person;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>使用注解</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">class A extends Base&#123;</span><br><span class="line">    @InjectData(name &#x3D; &quot;idea&quot;, age &#x3D; 5, gender &#x3D; &quot;male&quot;)</span><br><span class="line">    protected Person person;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class B extends Base&#123;</span><br><span class="line">    @InjectData(name &#x3D; &quot;java&quot;, age &#x3D; 20, gender &#x3D; &quot;female&quot;)</span><br><span class="line">    protected Person person;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>执行代码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">A a &#x3D; new A();</span><br><span class="line">B b &#x3D; new B();</span><br><span class="line">Person aa &#x3D; a.getPerson();</span><br><span class="line">Person bb &#x3D; b.getPerson();</span><br><span class="line">System.out.println(String.format(&quot;A: name:%s, age:%s, gender:%s&quot;, aa.getName(), aa.getAge(), aa.getGender()));</span><br><span class="line">System.out.println(String.format(&quot;B: name:%s, age:%s, gender:%s&quot;, bb.getName(), bb.getAge(), bb.getGender()));</span><br><span class="line"></span><br><span class="line">A: name:idea, age:5, gender:male</span><br><span class="line">B: name:java, age:20, gender:female</span><br></pre></td></tr></table></figure>
+
+<p>使用注解来初始化的好处是让编写具体应用代码的过程更加简洁，更加关注于数据的注入过程，让代码可读性和可维护性更高</p>
+</section>
+    
+
+    <footer id="post-meta" class="clearfix">
+        <a href="/about/">
+        <img class="avatar" src="/images/mine.png">
+        <div>
+            <span class="dark">一个极其普通的程序员</span>
+            <span></span>
+        </div>
+        </a>
+        <section id="sharing">
+            <!--
+            <a title="Share to Twitter" class="twitter" href="https://twitter.com/intent/tweet?text=http://yoursite.com/2020/02/10/%E6%B3%A8%E8%A7%A3%E5%9C%A8%E6%95%B0%E6%8D%AE%E5%88%9D%E5%A7%8B%E5%8C%96%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8/ - 注解在数据初始化中的应用 @" target="_blank" rel="noopener"><span class="icon-twitter">tweet</span></a>
+            <a title="Share to Facebook" class="facebook" href="#" onclick="
+                window.open(
+                  'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),
+                  'facebook-share-dialog',
+                  'width=626,height=436');
+                return false;"><span class="icon-facebook-sign">Share</span>
+            </a>
+            -->
+        </section>
+    </footer>
+
+
+  <section id="comment">
+    <button class="btn" id="loadcmts" onclick="cmts.load();">加载评论</button>
+    <div id="gitment"></div>
+    <script src='/js/gitment.browser.js'></script>
+    <link rel="stylesheet" href=''>
+    <script>
+      var cmts={
+        load:function cmts(){
+          var gitment = new Gitment({
+          
+            id: "注解在数据初始化中的应用",
+          
+            owner: "",
+            repo: "",
+            oauth: {
+              client_id: "",
+              client_secret: "",
+            },
+          })
+          gitment.render('gitment');
+          var loadcmt = document.getElementById("loadcmts");
+          var imyourfather = loadcmt.parentNode;
+          imyourfather.removeChild(loadcmts)
+        }
+      }
+    </script>
+  </section>
+
+
+	<footer id="footer">
+	<div id="social">
+		<p class="small">©  Henry Woo in CHJ Inc.
+		</p>
+	</div>
+</footer>
+
+</section>
+
+	<script src="//cdnjs.loli.net/ajax/libs/instantclick/3.0.1/instantclick.min.js" data-no-instant></script>
+	<script data-no-instant>
+		
+		InstantClick.init('mousedown');
+	</script>
+
+
+

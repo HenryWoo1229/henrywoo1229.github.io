@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+
+  <meta name="description" content="今天还是要写点 Android UiAutomator 相关的内容，涉及到 waitForIdle 这个方法。从名字上来看，它的作用是等待空闲，通常用来等待界面上没有变化时使用。但它真的能监测到 idle 吗，来看看它的源码
+这个方法是从 UiDevice 暴露出来供测试代码调用的，通过查看调用关系">
+
+
+<link rel="alternate" href="/atom.xml" title="一个极其普通的程序员" type="application/atom+xml">
+<meta name="theme-color" content="#a1d0f6">
+<title>Android UiAutomator 等待空闲 idle  - 一个极其普通的程序员</title>
+<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+<link rel="shortcut icon" href="/favicon.png">
+
+<link rel="stylesheet" href="/css/style.css">
+
+<nav class="main-nav">
+
+	
+	    <a href="/">← 主页</a>
+	
+	
+	    <a href="/about/">About</a>
+	
+	    <a href="/archives/">Archives</a>
+	
+	
+	<!--
+	<a class="cta" href="/atom.xml" data-no-instant>订阅</a>
+	-->
+</nav>
+
+<section id="wrapper">
+    <article class="post">
+    <header>
+        
+            <h1>Android UiAutomator 等待空闲 idle </h1>
+        
+        <h2 class="headline">Feb 25 2020
+        
+        </h2>
+    </header>
+</article>
+<section id="post-body"><p>今天还是要写点 Android UiAutomator 相关的内容，涉及到 waitForIdle 这个方法。从名字上来看，它的作用是等待空闲，通常用来等待界面上没有变化时使用。但它真的能监测到 idle 吗，来看看它的源码</p>
+<p>这个方法是从 UiDevice 暴露出来供测试代码调用的，通过查看调用关系，最终实现是在 framework 层的 UiAutomation 中</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; UiAutomation</span><br><span class="line"></span><br><span class="line">void waitForIdle(long idleTimeoutMillis, long globalTimeoutMillis)</span><br></pre></td></tr></table></figure>
+
+<p>该方法包含 2 个参数，都是超时时间，具体看看代码逻辑推断它们的作用</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">final long startTimeMillis &#x3D; SystemClock.uptimeMillis();</span><br><span class="line">if (mLastEventTimeMillis &lt;&#x3D; 0) &#123;</span><br><span class="line">    mLastEventTimeMillis &#x3D; startTimeMillis;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">while (true) &#123;</span><br><span class="line">    final long currentTimeMillis &#x3D; SystemClock.uptimeMillis();</span><br><span class="line"></span><br><span class="line">    final long elapsedGlobalTimeMillis &#x3D; currentTimeMillis - startTimeMillis;</span><br><span class="line">    final long remainingGlobalTimeMillis &#x3D;</span><br><span class="line">            globalTimeoutMillis - elapsedGlobalTimeMillis;</span><br><span class="line">    if (remainingGlobalTimeMillis &lt;&#x3D; 0) &#123;</span><br><span class="line">        throw new TimeoutException(&quot;No idle state with idle timeout: &quot;</span><br><span class="line">                + idleTimeoutMillis + &quot; within global timeout: &quot;</span><br><span class="line">                + globalTimeoutMillis);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    final long elapsedIdleTimeMillis &#x3D; currentTimeMillis - mLastEventTimeMillis;</span><br><span class="line">    final long remainingIdleTimeMillis &#x3D; idleTimeoutMillis - elapsedIdleTimeMillis;</span><br><span class="line">    if (remainingIdleTimeMillis &lt;&#x3D; 0) &#123;</span><br><span class="line">        return;</span><br><span class="line">    &#125;</span><br><span class="line">    try &#123;</span><br><span class="line">         mLock.wait(remainingIdleTimeMillis);</span><br><span class="line">    &#125; catch (InterruptedException ie) &#123;</span><br><span class="line">         &#x2F;* ignore *&#x2F;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这段代码中关于时间的变量较多，一个个看</p>
+<p>mLastEventTimeMillis 是一个成员变量，它在 onAccessibilityEvent 回调中得到赋值</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; UiAutomation$ IAccessibilityServiceClientImpl# onAccessibilityEvent</span><br><span class="line"></span><br><span class="line">mLastEventTimeMillis &#x3D; event.getEventTime();</span><br></pre></td></tr></table></figure>
+
+<p>记录的是当前收到的 AccessibilityEvent 事件时间，如果事件时间无效（mLastEventTimeMillis &lt;= 0），在 waitForIdle 方法中就会记录为当前代码被执行时的系统时间</p>
+<p>回到 waitForIdle 方法体中，当 remainingGlobalTimeMillis &lt;= 0 时会抛出一个异常，说的是没有 idle 状态，说明 remainingGlobalTimeMillis 是用来表示监测 idle 超时的变量，因此 globalTimeoutMillis 是设定的监测超时时长</p>
+<p>当 remainingIdleTimeMillis &lt;= 0 时，方法直接 return 了，说明监测到了 idle 状态，因此只要该变量不大于 0，说明当前就是界面空闲的</p>
+<p>lapsedIdleTimeMillis 表示距离上一次收到 AccessibilityEvent 事件过去了多长时间，假如密集地收到该事件，则 currentTimeMillis - mLastEventTimeMillis 就可能始终是个负值，那么 remainingIdleTimeMillis &gt; 0 就始终不是 idle 状态，后续就会触发到监测 idle 超时</p>
+<p>而如果某个时候不再收到该事件了，那么 currentTimeMillis - mLastEventTimeMillis 足够大，并且超过 idleTimeoutMillis （注：这个值在 UiAutomator 中写定为 500ms）时，remainingIdleTimeMillis &lt;= 0 就会发生</p>
+<p>因此，wait for Idle 是否真的能够准确监测到 idle 的关键是 AccessibilityEvent 事件是如何产生的。这里主要看看该事件有哪些类型</p>
+<ul>
+<li>TYPE_VIEW_CLICKED</li>
+<li>TYPE_VIEW_LONG_CLICKED</li>
+<li>TYPE_VIEW_SELECTED</li>
+<li>TYPE_VIEW_FOCUSED</li>
+<li>TYPE_VIEW_TEXT_CHANGED</li>
+<li>TYPE_WINDOW_STATE_CHANGED</li>
+<li>TYPE_NOTIFICATION_STATE_CHANGED</li>
+<li>TYPE_VIEW_HOVER_ENTER</li>
+<li>TYPE_VIEW_HOVER_EXIT</li>
+<li>TYPE_TOUCH_EXPLORATION_GESTURE_START</li>
+<li>TYPE_TOUCH_EXPLORATION_GESTURE_END</li>
+<li>TYPE_WINDOW_CONTENT_CHANGED</li>
+<li>TYPE_VIEW_SCROLLED</li>
+<li>TYPE_VIEW_TEXT_SELECTION_CHANGED</li>
+<li>TYPE_ANNOUNCEMENT</li>
+<li>TYPE_VIEW_TEXT_TRAVERSED_AT_MOVEMENT_GRANULARITY</li>
+<li>TYPE_GESTURE_DETECTION_START</li>
+<li>TYPE_GESTURE_DETECTION_END</li>
+<li>TYPE_TOUCH_INTERACTION_START</li>
+<li>TYPE_TOUCH_INTERACTION_END</li>
+<li>TYPE_WINDOWS_CHANGED</li>
+<li>TYPE_VIEW_CONTEXT_CLICKED</li>
+</ul>
+<p>捡几个熟悉的说，当 view 被点击，被选取，被滚动，或者文字内容发生变化等的情况下，就会发送 AccessibilityEvent 事件，也即此时不是 idle 状态。所以这个方法里体现的 idle，说的也正是界面的静止状态</p>
+</section>
+    
+
+    <footer id="post-meta" class="clearfix">
+        <a href="/about/">
+        <img class="avatar" src="/images/mine.png">
+        <div>
+            <span class="dark">一个极其普通的程序员</span>
+            <span></span>
+        </div>
+        </a>
+        <section id="sharing">
+            <!--
+            <a title="Share to Twitter" class="twitter" href="https://twitter.com/intent/tweet?text=http://yoursite.com/2020/02/25/Android%20UiAutomator%20%E7%AD%89%E5%BE%85%E7%A9%BA%E9%97%B2%20idle%20/ - Android UiAutomator 等待空闲 idle  @" target="_blank" rel="noopener"><span class="icon-twitter">tweet</span></a>
+            <a title="Share to Facebook" class="facebook" href="#" onclick="
+                window.open(
+                  'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),
+                  'facebook-share-dialog',
+                  'width=626,height=436');
+                return false;"><span class="icon-facebook-sign">Share</span>
+            </a>
+            -->
+        </section>
+    </footer>
+
+
+  <section id="comment">
+    <button class="btn" id="loadcmts" onclick="cmts.load();">加载评论</button>
+    <div id="gitment"></div>
+    <script src='/js/gitment.browser.js'></script>
+    <link rel="stylesheet" href=''>
+    <script>
+      var cmts={
+        load:function cmts(){
+          var gitment = new Gitment({
+          
+            id: "Android UiAutomator 等待空闲 idle ",
+          
+            owner: "",
+            repo: "",
+            oauth: {
+              client_id: "",
+              client_secret: "",
+            },
+          })
+          gitment.render('gitment');
+          var loadcmt = document.getElementById("loadcmts");
+          var imyourfather = loadcmt.parentNode;
+          imyourfather.removeChild(loadcmts)
+        }
+      }
+    </script>
+  </section>
+
+
+	<footer id="footer">
+	<div id="social">
+		<p class="small">©  Henry Woo in CHJ Inc.
+		</p>
+	</div>
+</footer>
+
+</section>
+
+	<script src="//cdnjs.loli.net/ajax/libs/instantclick/3.0.1/instantclick.min.js" data-no-instant></script>
+	<script data-no-instant>
+		
+		InstantClick.init('mousedown');
+	</script>
+
+
+

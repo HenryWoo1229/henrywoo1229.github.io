@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+
+  <meta name="description" content="最近看到一段 python 代码
+1234f &amp;#x3D; [lambda x: x[i] for i in range(2)]x &amp;#x3D; [1, 2]print(f[0](x))print(f[1](x))
+
+输出的结果是
+1222
+
+这里创建 f 的过程是一个 python 比较高级的写法">
+
+
+<link rel="alternate" href="/atom.xml" title="一个极其普通的程序员" type="application/atom+xml">
+<meta name="theme-color" content="#a1d0f6">
+<title>python 中的高级用法 1 - 一个极其普通的程序员</title>
+<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+<link rel="shortcut icon" href="/favicon.png">
+
+<link rel="stylesheet" href="/css/style.css">
+
+<nav class="main-nav">
+
+	
+	    <a href="/">← 主页</a>
+	
+	
+	    <a href="/about/">About</a>
+	
+	    <a href="/archives/">Archives</a>
+	
+	
+	<!--
+	<a class="cta" href="/atom.xml" data-no-instant>订阅</a>
+	-->
+</nav>
+
+<section id="wrapper">
+    <article class="post">
+    <header>
+        
+            <h1>python 中的高级用法 1</h1>
+        
+        <h2 class="headline">Feb 05 2020
+        
+        </h2>
+    </header>
+</article>
+<section id="post-body"><p>最近看到一段 python 代码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">f &#x3D; [lambda x: x[i] for i in range(2)]</span><br><span class="line">x &#x3D; [1, 2]</span><br><span class="line">print(f[0](x))</span><br><span class="line">print(f[1](x))</span><br></pre></td></tr></table></figure>
+
+<p>输出的结果是</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">2</span><br><span class="line">2</span><br></pre></td></tr></table></figure>
+
+<p>这里创建 f 的过程是一个 python 比较高级的写法。在 python 里，高级写法不仅能够让代码简洁，也能让执行效率更高，现在总结一下 python 中常见的一些高级写法</p>
+<h4 id="列表推导式"><a href="#列表推导式" class="headerlink" title="列表推导式"></a>列表推导式</h4><p>创建列表的时候，使用推导式更简洁，也更高效，而传统的 for 循环加 append 方式执行效率也不高</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"># 传统方式</span><br><span class="line">array &#x3D; [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;]</span><br><span class="line"></span><br><span class="line">_item &#x3D; []</span><br><span class="line">for i in array:</span><br><span class="line">    if i &#x3D;&#x3D; &#39;a&#39;:</span><br><span class="line">        _item.append(i)</span><br><span class="line"></span><br><span class="line"># 列表推导式        </span><br><span class="line">_item2 &#x3D; [item for item in array if item &#x3D;&#x3D; &#39;a&#39;]</span><br></pre></td></tr></table></figure>
+
+
+<p>有的场景还需要使用索引，配合 enumerate 函数的列表推导式可以摆脱 for 的依赖</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">_item_index &#x3D; [index for index, value in enumerate(array)]</span><br><span class="line"></span><br><span class="line"># 输出</span><br><span class="line">[0,1,2]</span><br></pre></td></tr></table></figure>
+<h4 id="lamda-表达式"><a href="#lamda-表达式" class="headerlink" title="lamda 表达式"></a>lamda 表达式</h4><p>python 中使用 def 来定义函数，并提供 lamda 表达式来定义匿名函数，当函数体比较简单的时候推荐使用</p>
+<p>比如定义一个 lamda 函数来返回文件路径</p>
+<p>传统写法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">def get_path(p):</span><br><span class="line">    return os.path.join(os.getcwd(), p)</span><br><span class="line">    </span><br><span class="line">_path &#x3D; get_path(&#39;test&#39;)</span><br></pre></td></tr></table></figure>
+
+<p>lamda 写法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">PATH &#x3D; lambda p: os.path.join(os.getcwd(), p)</span><br><span class="line"></span><br><span class="line">_path &#x3D; PATH(&#39;test&#39;)</span><br></pre></td></tr></table></figure>
+
+<p>lamda 表达式用在 map() 中，使得代码更简洁</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># 将字符串列表转换为整型列表</span><br><span class="line">str_array &#x3D; [&#39;1&#39;, &#39;2&#39;, &#39;3&#39;]</span><br><span class="line">int_array &#x3D; list(map(lambda ele: int(ele), str_array))</span><br></pre></td></tr></table></figure>
+
+<h4 id="装饰器"><a href="#装饰器" class="headerlink" title="装饰器"></a>装饰器</h4><p>装饰器用来修饰一个函数，但不会破坏该函数本身逻辑，一般用来给函数添加一些必要的 log 或者耗时统计</p>
+<p>添加 log 提示</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">def decorator(func):</span><br><span class="line">    def __wrapper__():</span><br><span class="line">        print(&#39;%s start&#39; % func.__name__)</span><br><span class="line">        func()</span><br><span class="line">        print(&#39;%s end&#39; % func.__name__)</span><br><span class="line"></span><br><span class="line">    return __wrapper__</span><br><span class="line"></span><br><span class="line">def f():</span><br><span class="line">    print(&#39;fff&#39;)</span><br><span class="line"></span><br><span class="line">decor_func &#x3D; decorator(f)</span><br><span class="line"># 执行 func</span><br><span class="line">decor_func()</span><br><span class="line"></span><br><span class="line"># 输出</span><br><span class="line">f start</span><br><span class="line">fff</span><br><span class="line">f end</span><br></pre></td></tr></table></figure>
+
+<p>这样就不必在所有的函数中添加执行和结束提示了，但这样在使用上就比较繁琐，简化一下装饰器，通过 @ 符号</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">from functools import wraps</span><br><span class="line"></span><br><span class="line">def decorator(func):</span><br><span class="line">    @wraps(func)</span><br><span class="line">    def __wrapper__():</span><br><span class="line">        print(&#39;%s start&#39; % func.__name__)</span><br><span class="line">        func()</span><br><span class="line">        print(&#39;%s end&#39; % func.__name__)</span><br><span class="line"></span><br><span class="line">    return __wrapper__</span><br><span class="line"></span><br><span class="line"># 在需要调用的函数上使用装饰器符号</span><br><span class="line">@decorator</span><br><span class="line">def f():</span><br><span class="line">    print(&#39;fff&#39;)</span><br><span class="line"></span><br><span class="line"># 调用时不必再调用装饰器函数</span><br><span class="line">f()</span><br></pre></td></tr></table></figure>
+
+<p>注意到使用了 @wraps 来装饰，这是避免 f.__name__ 返回的是 __wrapper__</p>
+<p>今天介绍了 python 的一部分高级的用法，后续会再继续总结一些其他的高级用法</p>
+</section>
+    
+
+    <footer id="post-meta" class="clearfix">
+        <a href="/about/">
+        <img class="avatar" src="/images/mine.png">
+        <div>
+            <span class="dark">一个极其普通的程序员</span>
+            <span></span>
+        </div>
+        </a>
+        <section id="sharing">
+            <!--
+            <a title="Share to Twitter" class="twitter" href="https://twitter.com/intent/tweet?text=http://yoursite.com/2020/02/05/python%20%E4%B8%AD%E7%9A%84%E9%AB%98%E7%BA%A7%E7%94%A8%E6%B3%95%201/ - python 中的高级用法 1 @" target="_blank" rel="noopener"><span class="icon-twitter">tweet</span></a>
+            <a title="Share to Facebook" class="facebook" href="#" onclick="
+                window.open(
+                  'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),
+                  'facebook-share-dialog',
+                  'width=626,height=436');
+                return false;"><span class="icon-facebook-sign">Share</span>
+            </a>
+            -->
+        </section>
+    </footer>
+
+
+  <section id="comment">
+    <button class="btn" id="loadcmts" onclick="cmts.load();">加载评论</button>
+    <div id="gitment"></div>
+    <script src='/js/gitment.browser.js'></script>
+    <link rel="stylesheet" href=''>
+    <script>
+      var cmts={
+        load:function cmts(){
+          var gitment = new Gitment({
+          
+            id: "python 中的高级用法 1",
+          
+            owner: "",
+            repo: "",
+            oauth: {
+              client_id: "",
+              client_secret: "",
+            },
+          })
+          gitment.render('gitment');
+          var loadcmt = document.getElementById("loadcmts");
+          var imyourfather = loadcmt.parentNode;
+          imyourfather.removeChild(loadcmts)
+        }
+      }
+    </script>
+  </section>
+
+
+	<footer id="footer">
+	<div id="social">
+		<p class="small">©  Henry Woo in CHJ Inc.
+		</p>
+	</div>
+</footer>
+
+</section>
+
+	<script src="//cdnjs.loli.net/ajax/libs/instantclick/3.0.1/instantclick.min.js" data-no-instant></script>
+	<script data-no-instant>
+		
+		InstantClick.init('mousedown');
+	</script>
+
+
+

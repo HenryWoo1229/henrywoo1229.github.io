@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+
+  <meta name="description" content="Selenium 到底是什么？
+Selenium，全称叫做：The Selenium Browser Automation Project
+它是用来做 Web 浏览器自动化的项目
+支持编写 Selenium 代码的语言
+
+Java
+Python
+Ruby
+C#
+JavaScript
+Kotlin
+
+">
+
+
+<link rel="alternate" href="/atom.xml" title="一个极其普通的程序员" type="application/atom+xml">
+<meta name="theme-color" content="#a1d0f6">
+<title>Selenium 的基本介绍 - 一个极其普通的程序员</title>
+<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+<link rel="shortcut icon" href="/favicon.png">
+
+<link rel="stylesheet" href="/css/style.css">
+
+<nav class="main-nav">
+
+	
+	    <a href="/">← 主页</a>
+	
+	
+	    <a href="/about/">About</a>
+	
+	    <a href="/archives/">Archives</a>
+	
+	
+	<!--
+	<a class="cta" href="/atom.xml" data-no-instant>订阅</a>
+	-->
+</nav>
+
+<section id="wrapper">
+    <article class="post">
+    <header>
+        
+            <h1>Selenium 的基本介绍</h1>
+        
+        <h2 class="headline">Mar 14 2020
+        
+        </h2>
+    </header>
+</article>
+<section id="post-body"><p><code>Selenium</code> 到底是什么？</p>
+<p>Selenium，全称叫做：The Selenium Browser Automation Project</p>
+<p>它是用来做 Web 浏览器自动化的项目</p>
+<h4 id="支持编写-Selenium-代码的语言"><a href="#支持编写-Selenium-代码的语言" class="headerlink" title="支持编写 Selenium 代码的语言"></a>支持编写 Selenium 代码的语言</h4><hr>
+<ul>
+<li>Java</li>
+<li>Python</li>
+<li>Ruby</li>
+<li>C#</li>
+<li>JavaScript</li>
+<li>Kotlin</li>
+</ul>
+<p>支持的主流语言较多，因此在使用 Selenium 进行 Web 自动化时更容易上手，适合更多的开发者</p>
+<h4 id="支持自动化的浏览器"><a href="#支持自动化的浏览器" class="headerlink" title="支持自动化的浏览器"></a>支持自动化的浏览器</h4><hr>
+<ul>
+<li>Chromium 系，比如 Chrome</li>
+<li>Firefox</li>
+<li>IE</li>
+<li>Opera</li>
+<li>Safari</li>
+<li>Windows Edge</li>
+<li>不适用于移动端浏览器，移动端可使用 Appium 项目</li>
+</ul>
+<p>要注意浏览器的版本，一些浏览器的早期版本或许不能很好的被支持</p>
+<h4 id="Selenium-核心"><a href="#Selenium-核心" class="headerlink" title="Selenium 核心"></a>Selenium 核心</h4><hr>
+<p><strong>1. WebDriver</strong></p>
+<p>提供编写 <code>Selenium</code> 自动化代码的 API。使用这些 API 则可以像<strong>用户一样</strong>去操作浏览器</p>
+<p><strong>2. IDE</strong></p>
+<p>在 Firefox 和 Chrome 浏览器中提供的扩展工具，这是一种快捷生成测试的方式，容易上手。对于想快速了解 <code>Selenium</code> 是如何操作的，IDE 非常适合，而且也支持脚本的录制和回放</p>
+<p><img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1gejqkv0vogj20tm0tognz.jpg" alt="undefined"></p>
+<p>另外要提及的是，IDE 提供了控件元素定位工具，这在使用 API 编写测试时能提供很大帮助</p>
+<p><img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1gejqlaoncgj20sk09ywez.jpg" alt="undefined"></p>
+<p><img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1gejqlgh2f0j20r00ccdgq.jpg" alt="undefined"></p>
+<p><strong>3. Grid</strong></p>
+<p>用于将 WebDriver 自动化脚本应用到多台计算机和多个浏览器上，达到并行测试的目的，并且可以集中管理浏览器的版本和配置，适合于网站在浏览器上的兼容性测试</p>
+<p>由于 WebDriver 是 Selenium 的核心组件，因此下文重点描述 WebDrvier 的内容，IDE 和 Grid 不过多介绍</p>
+<h4 id="Selenium-WebDriver-核心"><a href="#Selenium-WebDriver-核心" class="headerlink" title="Selenium WebDriver 核心"></a>Selenium WebDriver 核心</h4><hr>
+<p><strong>1. API</strong></p>
+<p>API 就是描述了一套提供给我们测试代码中可以使用的接口，调用这些接口能实现对浏览器的控制</p>
+<p><strong>2. 库文件</strong></p>
+<p>API 的具体实现。也就是我们在自动化工程代码中添加的依赖（dependency）。比如 Java 中的 .jar，C# 的 .dll 文件</p>
+<p><strong>3. 代理程序（驱动程序）</strong></p>
+<p>对于浏览器的控制，<code>Selenium</code> 需要借助代理程序，这些代理大多数都是浏览器厂家自己提供的（因此不同浏览器的代理程序不一致）。<code>Selenium</code> 借助它们来完成控制操作。同时，代理跟浏览器运行在一个平台上。如果我们操作的是远程机器的浏览器，那么代理也运行在远程机器</p>
+<p><strong>4. 测试框架</strong></p>
+<p>用来组织 <code>Selenium</code> 测试代码的库。比如 Java 中的 JUnit</p>
+<p>这不是必须的，使用测试框架只是为了方便组织用例，如果有自己的一套方式方法，完全不需要用框架</p>
+<h4 id="Selenium-WebDriver-的测试架构"><a href="#Selenium-WebDriver-的测试架构" class="headerlink" title="Selenium WebDriver 的测试架构"></a>Selenium WebDriver 的测试架构</h4><hr>
+<p><strong>1. WebDriver 直接通信方式控制本地浏览器</strong></p>
+<p><img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1gejqlmp3v1j20i20c6t9e.jpg" alt="undefined"></p>
+<p>使用这种方式组织测试时，需要将 WebDriver 可执行文件添加到系统 path 环境变量中，并启动代理程序，比如测试 Chrome 浏览器的话，启动 <code>chromedriver</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Starting ChromeDriver 2.25.426935 (820a95b0b81d33e42712f9198c215f703412e1a1) on port 9515</span><br><span class="line">Only local connections are allowed.</span><br></pre></td></tr></table></figure>
+
+<p>初始化 driver 代码如下（这里用 Chrome 作为示例）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">import org.openqa.selenium.WebDriver;</span><br><span class="line">import org.openqa.selenium.chrome.ChromeDriver;</span><br><span class="line"></span><br><span class="line">WebDriver driver &#x3D; new ChromeDriver();</span><br></pre></td></tr></table></figure>
+
+
+<p><strong>2. WebDriver 间接通信控制远程浏览器 1</strong></p>
+<p><img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1gejqluegm2j20ow0la3zx.jpg" alt="undefined"></p>
+<p>这里要多提一下 RemoteWebDriver，它由 <code>remote webdriver server</code> 和   <code>remote webdriver client</code> 构成</p>
+<p>server 可执行程序为 <code>selenium-server-standalone-{VERSION}.jar</code>，运行在要测试的浏览器所在计算机上（如果测本地浏览器的话就在本地运行）</p>
+<p>client 用来与 server 进行通信，我们编写自动化代码时使用它</p>
+<p><strong>此测试架构是较为常用的一种</strong></p>
+<p>初始化 drvier 代码如下（以 Chrome 为例）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">ChromeOptions chromeOptions &#x3D; new ChromeOptions();</span><br><span class="line">chromeOptions.setCapability(&quot;browserVersion&quot;, &quot;80&quot;);</span><br><span class="line">chromeOptions.setCapability(&quot;platformName&quot;, &quot;Windows 10&quot;);</span><br><span class="line">WebDriver driver &#x3D; new RemoteWebDriver(new URL(&quot;http:&#x2F;&#x2F;www.driver-index.com&quot;), chromeOptions);</span><br><span class="line">driver.get(&quot;http:&#x2F;&#x2F;www.example.com&quot;);</span><br><span class="line">driver.quit();</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>3. WebDriver 间接控制远程浏览器 2</strong></p>
+<p><img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1gejqm2vkqvj20nm0i4jso.jpg" alt="undefined"></p>
+<h4 id="与-Selenium-RC-的比较"><a href="#与-Selenium-RC-的比较" class="headerlink" title="与 Selenium RC 的比较"></a>与 Selenium RC 的比较</h4><ul>
+<li><p><code>Selenium RC</code> 是 <code>Selenium</code> 项目的旧版（也即 Selenium 1），<code>Selenium WebDriver</code>（Selenium 2）是更新的版本</p>
+</li>
+<li><p>WebDriver 比 RC 的 API 更加面向对象，更易于自动化代码的编写</p>
+</li>
+<li><p>WebDriver 比 RC 更好地模拟用户交互，尤其是一些网站的复杂交互</p>
+</li>
+<li><p>WebDriver 比 RC 拥有更好的浏览器支持</p>
+</li>
+</ul>
+<p>关于 <code>Selenium</code> 的基本介绍就到这里，考虑是否要开展 Web UI 自动化，需要思考以下几点：</p>
+<ul>
+<li>项目是否具备一定的开发测试周期</li>
+<li>页面 UI 是否能在一段时间后稳定下来</li>
+<li>是否需要进行多浏览器，多系统的兼容性测试</li>
+</ul>
+</section>
+    
+
+    <footer id="post-meta" class="clearfix">
+        <a href="/about/">
+        <img class="avatar" src="/images/mine.png">
+        <div>
+            <span class="dark">一个极其普通的程序员</span>
+            <span></span>
+        </div>
+        </a>
+        <section id="sharing">
+            <!--
+            <a title="Share to Twitter" class="twitter" href="https://twitter.com/intent/tweet?text=http://yoursite.com/2020/03/14/Selenium%20%E7%9A%84%E5%9F%BA%E6%9C%AC%E4%BB%8B%E7%BB%8D/ - Selenium 的基本介绍 @" target="_blank" rel="noopener"><span class="icon-twitter">tweet</span></a>
+            <a title="Share to Facebook" class="facebook" href="#" onclick="
+                window.open(
+                  'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),
+                  'facebook-share-dialog',
+                  'width=626,height=436');
+                return false;"><span class="icon-facebook-sign">Share</span>
+            </a>
+            -->
+        </section>
+    </footer>
+
+
+  <section id="comment">
+    <button class="btn" id="loadcmts" onclick="cmts.load();">加载评论</button>
+    <div id="gitment"></div>
+    <script src='/js/gitment.browser.js'></script>
+    <link rel="stylesheet" href=''>
+    <script>
+      var cmts={
+        load:function cmts(){
+          var gitment = new Gitment({
+          
+            id: "Selenium 的基本介绍",
+          
+            owner: "",
+            repo: "",
+            oauth: {
+              client_id: "",
+              client_secret: "",
+            },
+          })
+          gitment.render('gitment');
+          var loadcmt = document.getElementById("loadcmts");
+          var imyourfather = loadcmt.parentNode;
+          imyourfather.removeChild(loadcmts)
+        }
+      }
+    </script>
+  </section>
+
+
+	<footer id="footer">
+	<div id="social">
+		<p class="small">©  Henry Woo in CHJ Inc.
+		</p>
+	</div>
+</footer>
+
+</section>
+
+	<script src="//cdnjs.loli.net/ajax/libs/instantclick/3.0.1/instantclick.min.js" data-no-instant></script>
+	<script data-no-instant>
+		
+		InstantClick.init('mousedown');
+	</script>
+
+
+

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+
+  <meta name="description" content="Linux shell 命令博大精深，平日只取其皮毛，深感遗憾，今天整理一些很好用但平时用得不多的命令，便于写自动化脚本时做快速查询用
+1. ls -t 按时间排序
+按文件修改时间新到旧排列，如果要改为旧到新，则使用 ls -tr， 其中 -r 是反转命令 -t
+配合 -l 使用更佳
+12345# ">
+
+
+<link rel="alternate" href="/atom.xml" title="一个极其普通的程序员" type="application/atom+xml">
+<meta name="theme-color" content="#a1d0f6">
+<title>储备点儿有用的 linux shell - 一个极其普通的程序员</title>
+<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+<link rel="shortcut icon" href="/favicon.png">
+
+<link rel="stylesheet" href="/css/style.css">
+
+<nav class="main-nav">
+
+	
+	    <a href="/">← 主页</a>
+	
+	
+	    <a href="/about/">About</a>
+	
+	    <a href="/archives/">Archives</a>
+	
+	
+	<!--
+	<a class="cta" href="/atom.xml" data-no-instant>订阅</a>
+	-->
+</nav>
+
+<section id="wrapper">
+    <article class="post">
+    <header>
+        
+            <h1>储备点儿有用的 linux shell</h1>
+        
+        <h2 class="headline">Feb 14 2020
+        
+        </h2>
+    </header>
+</article>
+<section id="post-body"><p>Linux shell 命令博大精深，平日只取其皮毛，深感遗憾，今天整理一些很好用但平时用得不多的命令，便于写自动化脚本时做快速查询用</p>
+<p><strong>1. ls -t</strong> 按时间排序</p>
+<p>按文件修改时间新到旧排列，如果要改为旧到新，则使用 ls -tr， 其中 -r 是反转命令 -t</p>
+<p>配合 -l 使用更佳</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># 时间新到旧</span><br><span class="line">ls -lt</span><br><span class="line"></span><br><span class="line"># 时间旧到新</span><br><span class="line">ls -ltr</span><br></pre></td></tr></table></figure>
+
+<p><strong>2. ls -S</strong> 按大小排序</p>
+<p>按文件大小从大到小排列，如果要从小到大，则使用 ls -hS</p>
+<p>配合 -h 使用能按人类可读性更高的方式显示文件大小</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># 文件从大到小</span><br><span class="line">ls -lhS</span><br><span class="line"></span><br><span class="line"># 文件从小到大</span><br><span class="line">ls -lhSr</span><br></pre></td></tr></table></figure>
+
+<p><strong>3. 统计目录和文件数量</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># grep 查询 - 开头，也就是文件，wc 统计数量</span><br><span class="line">ls -l | grep &quot;^-&quot; |wc -l</span><br><span class="line"></span><br><span class="line">ls -l | grep &quot;^d&quot; |wc -l</span><br></pre></td></tr></table></figure>
+
+<p><strong>4. 列出文件的绝对路径</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># pwd 输出当前目录，通过 sed 添加当前文件名到其中</span><br><span class="line"></span><br><span class="line">ls | sed &quot;s:^:&#96;pwd&#96;&#x2F;:&quot;</span><br></pre></td></tr></table></figure>
+
+<p><strong>5. 统计文件中重复的行</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"># 输出文件中重复行的个数，sort 先进行排序，然后 uniq 才能对连续的重复行生效</span><br><span class="line">sort &lt;file&gt; | uniq -c</span><br><span class="line"></span><br><span class="line"># -c 命令统计重复的个数</span><br><span class="line">   4 test1111  </span><br><span class="line">   5 test222222</span><br><span class="line">   6 test33</span><br></pre></td></tr></table></figure>
+
+<p><strong>6. 文件大小写替换</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 将小写替换为大写</span><br><span class="line">echo abdcABCD |tr a-z A-Z</span><br></pre></td></tr></table></figure>
+
+<p><strong>7. 合并文件</strong></p>
+<p>paste 用来按行合并文件，可以做到合并多个文件时，相同行数组合到一起输出，可以用来合并文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">afile:</span><br><span class="line">aaa</span><br><span class="line">111</span><br><span class="line"></span><br><span class="line">bfile:</span><br><span class="line">bbb</span><br><span class="line">222</span><br><span class="line"></span><br><span class="line">cfile:</span><br><span class="line">ccc</span><br><span class="line">333</span><br><span class="line"></span><br><span class="line">paste afile bfile cfile</span><br><span class="line"></span><br><span class="line">#输出：</span><br><span class="line">aaa bbb ccc</span><br><span class="line">111 222 333</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># 使用 -s 参数可以将每个文件内容组成一行</span><br><span class="line">paste -s afile bfile cfile</span><br><span class="line"></span><br><span class="line">#输出：</span><br><span class="line">aaa 111</span><br><span class="line">bbb 222</span><br><span class="line">ccc 333</span><br></pre></td></tr></table></figure>
+</section>
+    
+
+    <footer id="post-meta" class="clearfix">
+        <a href="/about/">
+        <img class="avatar" src="/images/mine.png">
+        <div>
+            <span class="dark">一个极其普通的程序员</span>
+            <span></span>
+        </div>
+        </a>
+        <section id="sharing">
+            <!--
+            <a title="Share to Twitter" class="twitter" href="https://twitter.com/intent/tweet?text=http://yoursite.com/2020/02/14/%E5%82%A8%E5%A4%87%E7%82%B9%E5%84%BF%E6%9C%89%E7%94%A8%E7%9A%84%20linux%20shell/ - 储备点儿有用的 linux shell @" target="_blank" rel="noopener"><span class="icon-twitter">tweet</span></a>
+            <a title="Share to Facebook" class="facebook" href="#" onclick="
+                window.open(
+                  'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),
+                  'facebook-share-dialog',
+                  'width=626,height=436');
+                return false;"><span class="icon-facebook-sign">Share</span>
+            </a>
+            -->
+        </section>
+    </footer>
+
+
+  <section id="comment">
+    <button class="btn" id="loadcmts" onclick="cmts.load();">加载评论</button>
+    <div id="gitment"></div>
+    <script src='/js/gitment.browser.js'></script>
+    <link rel="stylesheet" href=''>
+    <script>
+      var cmts={
+        load:function cmts(){
+          var gitment = new Gitment({
+          
+            id: "储备点儿有用的 linux shell",
+          
+            owner: "",
+            repo: "",
+            oauth: {
+              client_id: "",
+              client_secret: "",
+            },
+          })
+          gitment.render('gitment');
+          var loadcmt = document.getElementById("loadcmts");
+          var imyourfather = loadcmt.parentNode;
+          imyourfather.removeChild(loadcmts)
+        }
+      }
+    </script>
+  </section>
+
+
+	<footer id="footer">
+	<div id="social">
+		<p class="small">©  Henry Woo in CHJ Inc.
+		</p>
+	</div>
+</footer>
+
+</section>
+
+	<script src="//cdnjs.loli.net/ajax/libs/instantclick/3.0.1/instantclick.min.js" data-no-instant></script>
+	<script data-no-instant>
+		
+		InstantClick.init('mousedown');
+	</script>
+
+
+

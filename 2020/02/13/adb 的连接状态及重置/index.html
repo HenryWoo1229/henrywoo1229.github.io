@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+
+  <meta name="description" content="在使用 adb 手动调试 Android 设备的时候，通常不会太在意当前设备的连接状态，比如 adb devices 一下发现设备不在线，执行一下 adb kill-server 或者重启设备即可。那如果要设计自动化测试该怎么办呢？读取 adb devices 来查看设备 list 的方式比较土，而">
+
+
+<link rel="alternate" href="/atom.xml" title="一个极其普通的程序员" type="application/atom+xml">
+<meta name="theme-color" content="#a1d0f6">
+<title>adb 的连接状态及重置 - 一个极其普通的程序员</title>
+<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+<link rel="shortcut icon" href="/favicon.png">
+
+<link rel="stylesheet" href="/css/style.css">
+
+<nav class="main-nav">
+
+	
+	    <a href="/">← 主页</a>
+	
+	
+	    <a href="/about/">About</a>
+	
+	    <a href="/archives/">Archives</a>
+	
+	
+	<!--
+	<a class="cta" href="/atom.xml" data-no-instant>订阅</a>
+	-->
+</nav>
+
+<section id="wrapper">
+    <article class="post">
+    <header>
+        
+            <h1>adb 的连接状态及重置</h1>
+        
+        <h2 class="headline">Feb 13 2020
+        
+        </h2>
+    </header>
+</article>
+<section id="post-body"><p>在使用 adb 手动调试 Android 设备的时候，通常不会太在意当前设备的连接状态，比如 adb devices 一下发现设备不在线，执行一下 adb kill-server 或者重启设备即可。那如果要设计自动化测试该怎么办呢？读取 adb devices 来查看设备 list 的方式比较土，而且会对多个已经连接的设备带来影响，而其实 adb 已经提供了这样判断的命令</p>
+<p>判断一个设备是否在线，则使用</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">adb get-state &lt;device-id&gt;</span><br><span class="line"></span><br><span class="line"># 比如 </span><br><span class="line">adb get-state fabcieda</span><br></pre></td></tr></table></figure>
+
+<p>会返回几种状态：device，offline，bootloader</p>
+<p>device 表示在线，可以直接交互，我们通常关心的也是这个</p>
+<p>offline 表示掉线了，如果是 unauthorized 状态也返回这个信息</p>
+<p>我们想要重新连接 offline 状态的设备，可以执行这样的指令</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 重新连接 offline&#x2F;unauthorized 状态的设备</span><br><span class="line">adb reconnect offline</span><br></pre></td></tr></table></figure>
+
+<p>如果返回信息显示找不到设备，那么可以使用</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 强制重新连接设备</span><br><span class="line">adb reconnect</span><br></pre></td></tr></table></figure>
+
+<p>如果设备端异常导致连接的问题，则可以使用</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 从设备端主动进行强制重连</span><br><span class="line">adb reconnect device</span><br></pre></td></tr></table></figure>
+<p>但这个命令一般不常用，可能会导致设备端 adb，毕竟设备端的稳定性和控制性不如 pc 端</p>
+<p>经过上面几个命令的配合，就能很好的串起来一段自动化测试状态转移的流程，这样操作的好处是避免粗暴使用 adb kill-server 的操作，它将所有的连接都断开，对其他处于 device 状态并且正在执行测试的设备造成影响</p>
+</section>
+    
+
+    <footer id="post-meta" class="clearfix">
+        <a href="/about/">
+        <img class="avatar" src="/images/mine.png">
+        <div>
+            <span class="dark">一个极其普通的程序员</span>
+            <span></span>
+        </div>
+        </a>
+        <section id="sharing">
+            <!--
+            <a title="Share to Twitter" class="twitter" href="https://twitter.com/intent/tweet?text=http://yoursite.com/2020/02/13/adb%20%E7%9A%84%E8%BF%9E%E6%8E%A5%E7%8A%B6%E6%80%81%E5%8F%8A%E9%87%8D%E7%BD%AE/ - adb 的连接状态及重置 @" target="_blank" rel="noopener"><span class="icon-twitter">tweet</span></a>
+            <a title="Share to Facebook" class="facebook" href="#" onclick="
+                window.open(
+                  'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),
+                  'facebook-share-dialog',
+                  'width=626,height=436');
+                return false;"><span class="icon-facebook-sign">Share</span>
+            </a>
+            -->
+        </section>
+    </footer>
+
+
+  <section id="comment">
+    <button class="btn" id="loadcmts" onclick="cmts.load();">加载评论</button>
+    <div id="gitment"></div>
+    <script src='/js/gitment.browser.js'></script>
+    <link rel="stylesheet" href=''>
+    <script>
+      var cmts={
+        load:function cmts(){
+          var gitment = new Gitment({
+          
+            id: "adb 的连接状态及重置",
+          
+            owner: "",
+            repo: "",
+            oauth: {
+              client_id: "",
+              client_secret: "",
+            },
+          })
+          gitment.render('gitment');
+          var loadcmt = document.getElementById("loadcmts");
+          var imyourfather = loadcmt.parentNode;
+          imyourfather.removeChild(loadcmts)
+        }
+      }
+    </script>
+  </section>
+
+
+	<footer id="footer">
+	<div id="social">
+		<p class="small">©  Henry Woo in CHJ Inc.
+		</p>
+	</div>
+</footer>
+
+</section>
+
+	<script src="//cdnjs.loli.net/ajax/libs/instantclick/3.0.1/instantclick.min.js" data-no-instant></script>
+	<script data-no-instant>
+		
+		InstantClick.init('mousedown');
+	</script>
+
+
+

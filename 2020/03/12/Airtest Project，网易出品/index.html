@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+
+  <meta name="description" content="Airtest Project 是网易出品的一款跨平台的 UI 自动化测试框架。通过阅读其官方网站 http://airtest.netease.com 的资料，对该框架的基本功能和特点做个介绍
+跨平台Airtest Project 一大特色是跨平台，支持以下应用的 UI 自动化测试
+
+Androi">
+
+
+<link rel="alternate" href="/atom.xml" title="一个极其普通的程序员" type="application/atom+xml">
+<meta name="theme-color" content="#a1d0f6">
+<title>Airtest Project，网易出品 - 一个极其普通的程序员</title>
+<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+<link rel="shortcut icon" href="/favicon.png">
+
+<link rel="stylesheet" href="/css/style.css">
+
+<nav class="main-nav">
+
+	
+	    <a href="/">← 主页</a>
+	
+	
+	    <a href="/about/">About</a>
+	
+	    <a href="/archives/">Archives</a>
+	
+	
+	<!--
+	<a class="cta" href="/atom.xml" data-no-instant>订阅</a>
+	-->
+</nav>
+
+<section id="wrapper">
+    <article class="post">
+    <header>
+        
+            <h1>Airtest Project，网易出品</h1>
+        
+        <h2 class="headline">Mar 12 2020
+        
+        </h2>
+    </header>
+</article>
+<section id="post-body"><p>Airtest Project 是网易出品的一款跨平台的 UI 自动化测试框架。通过阅读其官方网站 <a href="http://airtest.netease.com" target="_blank" rel="noopener">http://airtest.netease.com</a> 的资料，对该框架的基本功能和特点做个介绍</p>
+<h4 id="跨平台"><a href="#跨平台" class="headerlink" title="跨平台"></a>跨平台</h4><p>Airtest Project 一大特色是跨平台，支持以下应用的 UI 自动化测试</p>
+<ul>
+<li>Android app</li>
+<li>iOS app</li>
+<li>Windows 应用</li>
+<li>Web 应用</li>
+<li>微信小程序应用 ( 仅支持系统内核，TBS 内核尚在开发中，<a href="http://airtest.netease.com/blog/tutorial/WechatSmallProgram/" target="_blank" rel="noopener">http://airtest.netease.com/blog/tutorial/WechatSmallProgram/</a> )</li>
+</ul>
+<p>在游戏应用方面，支持以下引擎开发的 app </p>
+<ul>
+<li>Unity3d</li>
+<li>cocos2dx-js</li>
+<li>cocos2dx-lua</li>
+</ul>
+<p><img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1gejqivfyyrj20yo0punpd.jpg" alt="undefined"></p>
+<h4 id="运行环境"><a href="#运行环境" class="headerlink" title="运行环境"></a>运行环境</h4><p>Airtest Project 提供一套能够编写，录制，回放脚本的编辑器  AirtestIDE，目前该 IDE 已提供如下操作系统的客户端</p>
+<ul>
+<li>Mac</li>
+<li>Windows</li>
+<li>Linux Ubuntu</li>
+</ul>
+<h4 id="脚本编写语言"><a href="#脚本编写语言" class="headerlink" title="脚本编写语言"></a>脚本编写语言</h4><p>测试脚本编写语言为 Python，兼容 Python 2.7 和 Python 3.3-3.6</p>
+<h4 id="核心模块"><a href="#核心模块" class="headerlink" title="核心模块"></a>核心模块</h4><p><strong>1. Poco 用于控件识别</strong></p>
+<p><a href="https://github.com/AirtestProject/Poco" target="_blank" rel="noopener">https://github.com/AirtestProject/Poco</a></p>
+<p>Poco 框架用于对 Unity3D，cocos2dx-*，Android 原生 app，iOS 原生 app 的控件树进行解析查找，来定位 UI</p>
+<p>例如对 Android 原生 app 的 控件定位</p>
+<p><img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1gejqj94ovaj21js0f6ae0.jpg" alt="undefined"></p>
+<p><strong>2. Airtest 用于图像识别</strong></p>
+<p><a href="https://github.com/AirtestProject/Airtest" target="_blank" rel="noopener">https://github.com/AirtestProject/Airtest</a></p>
+<p>Airtest 框架用于对 Android，iOS，Windows，Unity，Cocos2dx，微信小程序应用界面的图像进行识别，实现界面查找及定位</p>
+<p>例如对 app 中某个图像进行定位或查找</p>
+<p><img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1gejqjhbhmuj21i40igart.jpg" alt="undefined"></p>
+<p><strong>3. 自定义测试</strong></p>
+<p><a href="http://airtest.netease.com/docs/en/1_online_help/advanced_features.html" target="_blank" rel="noopener">http://airtest.netease.com/docs/en/1_online_help/advanced_features.html</a></p>
+<p>Airtest Project 可根据需要扩展录制的功能，例如</p>
+<ol>
+<li>设置脚本执行中的自定义参数</li>
+<li>添加自定义功能，或替换默认功能</li>
+<li>在脚本运行前，过程中或运行结束后执行类似 setUp, tearDown 的操作</li>
+</ol>
+<h4 id="与设备进行连接"><a href="#与设备进行连接" class="headerlink" title="与设备进行连接"></a>与设备进行连接</h4><p>在 AirtestIDE 中针对 Android 设备的连接比较容易，通过开启设备的 USB 调试即可快速连接</p>
+<p>但针对 iOS 设备的连接需要进行一些配置，下面演练时针对 iPhone 进行</p>
+<ol>
+<li>iOS-Tagent</li>
+</ol>
+<p>clone </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https:&#x2F;&#x2F;github.com&#x2F;AirtestProject&#x2F;iOS-Tagent.git</span><br></pre></td></tr></table></figure>
+
+<p><strong>启动 WebDriverAgent.xcodeproj 时注意按照下面的步骤设置一下开发者</strong>，官方的配置没有介绍这一点，未配置的情况下会导致 build failed</p>
+<p>Step 1: 修改 Bundle identifier</p>
+<p>将下图第 4 步的值修改为跟原值不一样，例如我这里在开头加了一个 my.</p>
+<p><img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1gejqjpgcnlj21m40oyx3x.jpg" alt="undefined"></p>
+<p>Step 2: 修改 Team</p>
+<p>在 Step 1 的基础上，设置本地的 Apple ID （如果没有配置的话需要自行先添加下）</p>
+<p><img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1gejqjzi8q9j216s0lggpz.jpg" alt="undefined"></p>
+<p>Step 3: 修改 info Bundle identifier</p>
+<p>将以下图中第 2 步的值改为与 Step 1 中完全一致</p>
+<p><img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1gejqk736i3j219w0fsdkt.jpg" alt="undefined"></p>
+<p>经过以上配置的修改，再执行 Xcode 的 Product - Test 就能编译成功</p>
+<p>如果经过以上操作仍然不成功，则参考我之前的文章：appium ios 的配置。AirTest 的官方文档介绍不够全面，而 WebDriverAgent 依赖的第三方库较多，在 appium 中也有应用到，我在此文中有更详细的介绍</p>
+<p>另外，如果运行起来之后遇到如下报错 Test Failed，根据提示在通用-设备管理中对 Apple Development 进行信任操作</p>
+<p><img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1gejqkgafxkj20mu086qbi.jpg" alt="undefined"></p>
+<h4 id="写在后面，与逐鹿测试平台的对比"><a href="#写在后面，与逐鹿测试平台的对比" class="headerlink" title="写在后面，与逐鹿测试平台的对比"></a>写在后面，与逐鹿测试平台的对比</h4><p>Airtest Project 从覆盖面上看比较强大，得益于图像方式的控件识别，能够更好的应用在游戏及无法使用控件方式定位 UI 的场景，这一块也是我们逐鹿平台今后扩展时可以借鉴的地方</p>
+<p>另外，由于使用 python 编写脚本，能支持更多的第三方库，所以其扩展性较强，适合针对特定的需求自主开发脚本内容</p>
+<p>除了覆盖的应用范围没有那么广以外，我们自主开发的逐鹿自动化测试平台在针对 Android 测试方面，已经涵盖了上述定位控件和图像识别的功能，并且从功能上来比较，更适用于车机的测试，比如多指手势，可编程电源控制，USB 开关控制，CAN/LIN 信号收发等</p>
+<p>相比较而言，Airtest Project 一开始的定位则是更广泛的平台以及更便捷的脚本编写体验</p>
+<p>而逐鹿测试平台则深度定位于车机，支持更多车机测试的需求</p>
+</section>
+    
+
+    <footer id="post-meta" class="clearfix">
+        <a href="/about/">
+        <img class="avatar" src="/images/mine.png">
+        <div>
+            <span class="dark">一个极其普通的程序员</span>
+            <span></span>
+        </div>
+        </a>
+        <section id="sharing">
+            <!--
+            <a title="Share to Twitter" class="twitter" href="https://twitter.com/intent/tweet?text=http://yoursite.com/2020/03/12/Airtest%20Project%EF%BC%8C%E7%BD%91%E6%98%93%E5%87%BA%E5%93%81/ - Airtest Project，网易出品 @" target="_blank" rel="noopener"><span class="icon-twitter">tweet</span></a>
+            <a title="Share to Facebook" class="facebook" href="#" onclick="
+                window.open(
+                  'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),
+                  'facebook-share-dialog',
+                  'width=626,height=436');
+                return false;"><span class="icon-facebook-sign">Share</span>
+            </a>
+            -->
+        </section>
+    </footer>
+
+
+  <section id="comment">
+    <button class="btn" id="loadcmts" onclick="cmts.load();">加载评论</button>
+    <div id="gitment"></div>
+    <script src='/js/gitment.browser.js'></script>
+    <link rel="stylesheet" href=''>
+    <script>
+      var cmts={
+        load:function cmts(){
+          var gitment = new Gitment({
+          
+            id: "Airtest Project，网易出品",
+          
+            owner: "",
+            repo: "",
+            oauth: {
+              client_id: "",
+              client_secret: "",
+            },
+          })
+          gitment.render('gitment');
+          var loadcmt = document.getElementById("loadcmts");
+          var imyourfather = loadcmt.parentNode;
+          imyourfather.removeChild(loadcmts)
+        }
+      }
+    </script>
+  </section>
+
+
+	<footer id="footer">
+	<div id="social">
+		<p class="small">©  Henry Woo in CHJ Inc.
+		</p>
+	</div>
+</footer>
+
+</section>
+
+	<script src="//cdnjs.loli.net/ajax/libs/instantclick/3.0.1/instantclick.min.js" data-no-instant></script>
+	<script data-no-instant>
+		
+		InstantClick.init('mousedown');
+	</script>
+
+
+

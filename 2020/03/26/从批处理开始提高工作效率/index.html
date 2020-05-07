@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+
+  <meta name="description" content="shell 脚本是 Linux/Unix（比如 Ubuntu系统 或者 Mac OS 系统中最常用的一种脚本语言），但我们不做开发，平时用 Windows 系统办公，跑不了 shell 该如何呢？（实际情况是，通过在 Windows 上安装 cygwin 环境也可以，但今天不做介绍）
+那就从 Win">
+
+
+<link rel="alternate" href="/atom.xml" title="一个极其普通的程序员" type="application/atom+xml">
+<meta name="theme-color" content="#a1d0f6">
+<title>从批处理开始提高工作效率 - 一个极其普通的程序员</title>
+<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+<link rel="shortcut icon" href="/favicon.png">
+
+<link rel="stylesheet" href="/css/style.css">
+
+<nav class="main-nav">
+
+	
+	    <a href="/">← 主页</a>
+	
+	
+	    <a href="/about/">About</a>
+	
+	    <a href="/archives/">Archives</a>
+	
+	
+	<!--
+	<a class="cta" href="/atom.xml" data-no-instant>订阅</a>
+	-->
+</nav>
+
+<section id="wrapper">
+    <article class="post">
+    <header>
+        
+            <h1>从批处理开始提高工作效率</h1>
+        
+        <h2 class="headline">Mar 26 2020
+        
+        </h2>
+    </header>
+</article>
+<section id="post-body"><p>shell 脚本是 Linux/Unix（比如 Ubuntu系统 或者 Mac OS 系统中最常用的一种脚本语言），但我们不做开发，平时用 Windows 系统办公，跑不了 shell 该如何呢？（实际情况是，通过在 Windows 上安装 cygwin 环境也可以，但今天不做介绍）</p>
+<p>那就从 Windows 原生的脚本 —— 批处理开始吧，它拥有非常简单的语法结构，不用编译就能执行的特点，我曾经用它编写了一个 Android adb 相关的指令集工具，并提供给同事使用，提高了大家办事的效率</p>
+<p>本文通过对 <code>uiautomatorviewer.bat</code>，一个 Android 上用来启动控件结构查看工具的脚本的内容解析，带大家入门 “批处理”</p>
+<p>它位于 <code>%ANDROID_SDK_HOME%\tools\bin\uiautomatorviewer.bat</code></p>
+<p>我这里以 google source 中的这个版本来解释：<a href="https://android.googlesource.com/platform/sdk/+/android-4.2.2_r1/uiautomatorviewer/etc/uiautomatorviewer.bat" target="_blank" rel="noopener">https://android.googlesource.com/platform/sdk/+/android-4.2.2_r1/uiautomatorviewer/etc/uiautomatorviewer.bat</a></p>
+<p>第 1-2 行</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1 @echo off</span><br><span class="line">2 rem Copyright (C) 2012 The Android Open Source Project</span><br></pre></td></tr></table></figure>
+<p>Line 1: @ 符号表示执行时不会输出这一行的代码内容，如果不写的话，会在 cmd 命令行中把 “echo off” 字段显示出来。<code>echo off</code> 在这里的意思是后续的代码字段都不会显示到执行窗口中，也即不用每一行开头都写一个 @ 符号来隐藏代码</p>
+<p>Line 2: rem 是注释关键字，表示这一行之后写的文本只是注释描述，不会当作代码执行</p>
+<p>第 17 行</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">17 setlocal</span><br></pre></td></tr></table></figure>
+<p><code>setlocal</code> 作用是本次批处理脚本中进行的参数设置只在当前脚本下生效，不会影响整个系统的设置</p>
+<p>第 21 行</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">21 set prog&#x3D;%~f0</span><br></pre></td></tr></table></figure>
+<p><code>set</code> 关键字用来给变量赋值，这里对 prog 变量进行初始化，它的值为 <code>%~f0</code>，f 是 file 的缩写，这个值表示当前批处理脚本的绝对路径，所以是一个动态值，脚本放到哪里，它就表示哪个路径。这样的写法增强了脚本使用的灵活性</p>
+<p>第 25 行</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">25 cd &#x2F;d %~dp0</span><br></pre></td></tr></table></figure>
+<p><code>%~dp0</code> （dp 是 driver path 缩写），表示当前脚本所在目录的路径</p>
+<p>这一行就是在命令行里切换到当前脚本所在目录下</p>
+<p>第 29-30 行</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">29 call lib\find_java.bat</span><br><span class="line">30 if not defined java_exe goto :EOF</span><br></pre></td></tr></table></figure>
+
+<p>Line 29: call 表示调用，由于 25 行切换到了脚本所在目录，即 <code>%ANDROID_SDK_HOME%\tools\bin</code>，则该行调用的是 <code>%ANDROID_SDK_HOME%\tools\bin\lib\find_java.bat</code> 这个批处理文件</p>
+<p>Line 30: 执行 find_java.bat 的过程中，如果找得到 JDK HOME 目录，那么会给变量 java_exe 赋值。这一行用到一个 <code>if</code> 语句做判断，表达式为 <code>not defined java_exe</code>，如果表达式成立（即没有对 java_exe 赋值），则执行 <code>goto :EOF</code>，也就是不再执行后续代码，退出脚本</p>
+<p>第 35-36 行</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">35 if exist %frameworkdir%%jarfile% goto JarFileOk</span><br><span class="line">36    set frameworkdir&#x3D;lib\</span><br></pre></td></tr></table></figure>
+<p>这是一个 <code>if</code> 语句，表达式为 <code>exist %frameworkdir%%jarfile%</code>，这里两个相邻 % 包裹起来的英文表示取这个变量的值, exist 表示判断这个文件是否存在，如果成立，则直接从标示有 JarFileOk （第 41 行 :JarFileOk）的地方开始往下执行，<code>goto</code> 用来控制代码跳转到任意位置用，如果表达式不成立，则进行 <code>set</code> 赋值操作</p>
+<p>第 63 行</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">63 call %java_exe% -Djava.ext.dirs&#x3D;%javaextdirs% -Dcom.android.uiautomator.bindir&#x3D; -jar %jarpath% %*</span><br></pre></td></tr></table></figure>
+
+<p>这一行是综合脚本前述的参数，真正意义上启动实际程序的一行代码</p>
+<p>在该行前面复制这一行的内容，并将 <code>call</code> 替换为 <code>echo</code>，就能看到这一行的真实执行面貌</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">D:\Tools\Java\JDK-8U~1\bin\java.exe -Djava.ext.dirs&#x3D;..\lib\x86_64;..\lib -Dcom.android.uiautomator.bindir&#x3D;D:\Tools\ANDROI~1\tools -jar ..\lib\uiautomatorviewer-26.0.0-dev.jar</span><br></pre></td></tr></table></figure>
+<p><code>echo</code> 是用来输出文本的，可以输出字符或者变量的值</p>
+<p>因此它把变量的值给输出，便于直观查看</p>
+<p>实际上，启动<code>uiautomatorviewer.bat</code> 最终真正执行的是 <code>uiautomatorviewer-26.0.0-dev.jar</code> 这个 java 程序的代码</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>今天通过介绍一个批处理文件 .bat 的实例，入门了几个常用的功能</p>
+<p><code>@echo off</code> 关闭代码行在命令行中的显示</p>
+<p><code>set</code> 变量赋值关键字</p>
+<p><code>%~f0</code> 脚本文件绝对路径</p>
+<p><code>%~dp0</code> 脚本文件目录路径</p>
+<p><code>if</code> 条件判断语句</p>
+<p><code>goto</code> 代码控制关键字</p>
+<p><code>echo</code> 文本输出关键字</p>
+<p><code>%java_exe%</code> 变量值的引用符号，双 %</p>
+<p><code>call</code> 调用其他的批处理或应用程序关键字</p>
+</section>
+    
+
+    <footer id="post-meta" class="clearfix">
+        <a href="/about/">
+        <img class="avatar" src="/images/mine.png">
+        <div>
+            <span class="dark">一个极其普通的程序员</span>
+            <span></span>
+        </div>
+        </a>
+        <section id="sharing">
+            <!--
+            <a title="Share to Twitter" class="twitter" href="https://twitter.com/intent/tweet?text=http://yoursite.com/2020/03/26/%E4%BB%8E%E6%89%B9%E5%A4%84%E7%90%86%E5%BC%80%E5%A7%8B%E6%8F%90%E9%AB%98%E5%B7%A5%E4%BD%9C%E6%95%88%E7%8E%87/ - 从批处理开始提高工作效率 @" target="_blank" rel="noopener"><span class="icon-twitter">tweet</span></a>
+            <a title="Share to Facebook" class="facebook" href="#" onclick="
+                window.open(
+                  'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),
+                  'facebook-share-dialog',
+                  'width=626,height=436');
+                return false;"><span class="icon-facebook-sign">Share</span>
+            </a>
+            -->
+        </section>
+    </footer>
+
+
+  <section id="comment">
+    <button class="btn" id="loadcmts" onclick="cmts.load();">加载评论</button>
+    <div id="gitment"></div>
+    <script src='/js/gitment.browser.js'></script>
+    <link rel="stylesheet" href=''>
+    <script>
+      var cmts={
+        load:function cmts(){
+          var gitment = new Gitment({
+          
+            id: "从批处理开始提高工作效率",
+          
+            owner: "",
+            repo: "",
+            oauth: {
+              client_id: "",
+              client_secret: "",
+            },
+          })
+          gitment.render('gitment');
+          var loadcmt = document.getElementById("loadcmts");
+          var imyourfather = loadcmt.parentNode;
+          imyourfather.removeChild(loadcmts)
+        }
+      }
+    </script>
+  </section>
+
+
+	<footer id="footer">
+	<div id="social">
+		<p class="small">©  Henry Woo in CHJ Inc.
+		</p>
+	</div>
+</footer>
+
+</section>
+
+	<script src="//cdnjs.loli.net/ajax/libs/instantclick/3.0.1/instantclick.min.js" data-no-instant></script>
+	<script data-no-instant>
+		
+		InstantClick.init('mousedown');
+	</script>
+
+
+

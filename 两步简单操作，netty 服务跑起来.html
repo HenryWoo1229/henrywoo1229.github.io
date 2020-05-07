@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+
+  <meta name="description" content="netty 是一个 Java 中用来做网络 NIO 的开源框架。提到 NIO 不得不先提一下网络 IO 框架
+在 Java 中进行 Socket 开发时，JDK 提供了一个 IO 框架，服务端编写 java.net.ServerSocket，客户端编写 java.net.Socket，如果不了解的话">
+
+
+<link rel="alternate" href="/atom.xml" title="一个极其普通的程序员" type="application/atom+xml">
+<meta name="theme-color" content="#a1d0f6">
+<title>一个极其普通的程序员</title>
+<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+<link rel="shortcut icon" href="/favicon.png">
+
+<link rel="stylesheet" href="/css/style.css">
+
+<nav class="main-nav">
+
+	
+	    <a href="/">← 主页</a>
+	
+	
+	    <a href="/about/">About</a>
+	
+	    <a href="/archives/">Archives</a>
+	
+	
+	<!--
+	<a class="cta" href="/atom.xml" data-no-instant>订阅</a>
+	-->
+</nav>
+
+<section id="wrapper">
+    <article class="post">
+    <header>
+        
+        <h2 class="headline">Mar 17 2020
+        
+        </h2>
+    </header>
+</article>
+<section id="post-body"><p><code>netty</code> 是一个 Java 中用来做网络 <code>NIO</code> 的开源框架。提到 <code>NIO</code> 不得不先提一下网络 <code>IO</code> 框架</p>
+<p>在 Java 中进行 Socket 开发时，JDK 提供了一个 <code>IO</code> 框架，服务端编写 <code>java.net.ServerSocket</code>，客户端编写 <code>java.net.Socket</code>，如果不了解的话，记住一点：此框架在 Server 要并发处理 Client 连接请求时，需要开启一个新的线程，当连接数变大后 Server 占用的资源就会增大，而线程间切换又会导致性能低下，所以复杂的场景不推荐使用</p>
+<p>后来 JDK 提供了一个“非阻塞式” IO 框架，用来解决 <code>IO</code> 框架中的性能问题，由于这部分 API 比较复杂，导致业务代码写起来繁琐，所以有了 <code>netty</code>，对 <code>NIO</code> 做了封装，让它的开发变得简单</p>
+<p>我之前写过文章提到程序员如何去使用新框架（这篇：），今天我们的目的是在自己的计算机中通过两步操作把 <code>netty</code> 服务端和客户端跑起来</p>
+<p>第一步，先找到它的官网，查看 <code>getting started</code></p>
+<p><img src="http://note.youdao.com/yws/res/16365/B55E6C6442E545888D8E5071DB2BCD60" alt="image"></p>
+<p>全英文，看不懂的话谷歌翻译一下全文</p>
+<p><img src="http://note.youdao.com/yws/res/16372/EFFB78FD78394D98897B7EDF967EAD2E" alt="image"></p>
+<p>通过搜索 <code>sample</code> 或者 <code>example</code>，找到了示例代码的链接</p>
+<p><img src="http://note.youdao.com/yws/res/16379/B56A33B3A2934403B8ACE88DA9026387" alt="image"></p>
+<p>该链接是 github 的代码库，我们 clone 或者 download zip 到本地</p>
+<p>第二步，用 IDEA 打开这个 maven 项目，等待同步结束（会自动根据 pom 文件下载好依赖，需要一点时间），之后就可以编译运行了</p>
+<p><img src="http://note.youdao.com/yws/res/16389/958D3310686D412B9ED04AC153D9DF77" alt="image"></p>
+<p>这里挑选 <code>getting started</code> 中的第一个示例 <code>Discard Server</code> 运行，Console 显示</p>
+<p><img src="http://note.youdao.com/yws/res/16396/CE919EF907E343B2BACDE61B21F5DE45" alt=""></p>
+<p>再运行 Client，此时 Server 收到了数据</p>
+<p><img src="http://note.youdao.com/yws/res/16398/A9B3D01F03D74CA19F749F51DE66C9C6" alt=""></p>
+<p>好了，这样两步操作就完成了最简单的 <code>netty</code> 服务运行，示例代码中还包含了多种使用 <code>netty</code> 框架实现的协议，通过参考 <code>getting started</code> 中的介绍说明，可以进一步学习框架中的 <code>handler</code>，<code>initializer</code> 等的用法</p>
+</section>
+    
+
+
+  <section id="comment">
+    <button class="btn" id="loadcmts" onclick="cmts.load();">加载评论</button>
+    <div id="gitment"></div>
+    <script src='/js/gitment.browser.js'></script>
+    <link rel="stylesheet" href=''>
+    <script>
+      var cmts={
+        load:function cmts(){
+          var gitment = new Gitment({
+          
+            owner: "",
+            repo: "",
+            oauth: {
+              client_id: "",
+              client_secret: "",
+            },
+          })
+          gitment.render('gitment');
+          var loadcmt = document.getElementById("loadcmts");
+          var imyourfather = loadcmt.parentNode;
+          imyourfather.removeChild(loadcmts)
+        }
+      }
+    </script>
+  </section>
+
+
+	<footer id="footer">
+	<div id="social">
+		<p class="small">©  Henry Woo in CHJ Inc.
+		</p>
+	</div>
+</footer>
+
+</section>
+
+	<script src="//cdnjs.loli.net/ajax/libs/instantclick/3.0.1/instantclick.min.js" data-no-instant></script>
+	<script data-no-instant>
+		
+		InstantClick.init('mousedown');
+	</script>
+
+
+

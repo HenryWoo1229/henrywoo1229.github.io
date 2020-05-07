@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+
+  <meta name="description" content="UiAutomator2 是对 Accessibility 应用的一层封装，将复杂的中间过程隐藏起来，而将简单的，对 UI 操作友好的，更适合于用例编写的 api 公开，便于测试人员专注在业务流程的使用上。但 Accessibility 中的逻辑并非万无一失，当我们的用例代码越来越复杂化，涉及到的 ">
+
+
+<link rel="alternate" href="/atom.xml" title="一个极其普通的程序员" type="application/atom+xml">
+<meta name="theme-color" content="#a1d0f6">
+<title>UiAutomator2 的 Root Node - 一个极其普通的程序员</title>
+<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+<link rel="shortcut icon" href="/favicon.png">
+
+<link rel="stylesheet" href="/css/style.css">
+
+<nav class="main-nav">
+
+	
+	    <a href="/">← 主页</a>
+	
+	
+	    <a href="/about/">About</a>
+	
+	    <a href="/archives/">Archives</a>
+	
+	
+	<!--
+	<a class="cta" href="/atom.xml" data-no-instant>订阅</a>
+	-->
+</nav>
+
+<section id="wrapper">
+    <article class="post">
+    <header>
+        
+            <h1>UiAutomator2 的 Root Node</h1>
+        
+        <h2 class="headline">Feb 21 2020
+        
+        </h2>
+    </header>
+</article>
+<section id="post-body"><p>UiAutomator2 是对 Accessibility 应用的一层封装，将复杂的中间过程隐藏起来，而将简单的，对 UI 操作友好的，更适合于用例编写的 api 公开，便于测试人员专注在业务流程的使用上。但 Accessibility 中的逻辑并非万无一失，当我们的用例代码越来越复杂化，涉及到的 UI 界面多元化时，就会暴露出系统 api 的 bug，今天先熟悉一下 AccessibilityWindowInfo 是如何获得 root AccessibilityNodeInfo 节点的，这部分如果之前不了解的，请先参考这一篇：</p>
+<p>当获取到当前 Screen 下的 Window info 对象 AccessibilityWindowInfo 后，调用 AccessibilityWindowInfo#getRoot() 获取根节点，看看这个方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; AccessibilityWindowInfo.java</span><br><span class="line"></span><br><span class="line">public AccessibilityNodeInfo getRoot() &#123;</span><br><span class="line">    if (mConnectionId &#x3D;&#x3D; UNDEFINED_WINDOW_ID) &#123;</span><br><span class="line">        return null;</span><br><span class="line">    &#125;</span><br><span class="line">    AccessibilityInteractionClient client &#x3D; AccessibilityInteractionClient.getInstance();</span><br><span class="line">    return client.findAccessibilityNodeInfoByAccessibilityId(mConnectionId,</span><br><span class="line">		    mDisplayId, mId, AccessibilityNodeInfo.ROOT_NODE_ID,</span><br><span class="line">            true, AccessibilityNodeInfo.FLAG_PREFETCH_DESCENDANTS, null);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>借助了另一个方法 AccessibilityInteractionClient# client.findAccessibilityNodeInfoByAccessibilityId<br>看看这个方法是什么。由于代码较长，只截取了关键部分，实际上它也借助另一个方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; AccessibilityInteractionClient# findAccessibilityNodeInfoByAccessibilityId</span><br><span class="line"></span><br><span class="line">......</span><br><span class="line">IAccessibilityServiceConnection connection &#x3D; getConnection(connectionId);</span><br><span class="line">......</span><br><span class="line">packageNames &#x3D; connection.findAccessibilityNodeInfoByAccessibilityId(&#x2F;* 参数 *&#x2F;);</span><br><span class="line">......</span><br></pre></td></tr></table></figure>
+
+<p>IAccessibilityServiceConnection 接口的实现类在 AccessibilityManagerService 中，这是一个系统服务类，随系统启动而启动，类似于 ActivityManagerService</p>
+<p>在 AccessibilityManagerService 中找到一个内部类 Service，实现了 IAccessibilityServiceConnection，找到它的方法 findAccessibilityNodeInfoByAccessibilityId</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; AccessibilityManagerService$ Service# findAccessibilityNodeInfoByAccessibilityId</span><br><span class="line"></span><br><span class="line">......</span><br><span class="line">RemoteAccessibilityConnection connection &#x3D; null;</span><br><span class="line">......</span><br><span class="line">connection.getRemote().findAccessibilityNodeInfoByAccessibilityId(&#x2F;* 参数 *&#x2F;);</span><br><span class="line">......</span><br></pre></td></tr></table></figure>
+
+<p>看到 connection 获取了一个 Remote，它是接口 IAccessibilityInteractionConnection，实现类是 ViewRootImpl 的内部类 AccessibilityInteractionConnection，看看它的 findAccessibilityNodeInfoByAccessibilityId</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; ViewRootImpl$ AccessibilityInteractionConnection# findAccessibilityNodeInfoByAccessibilityId</span><br><span class="line"></span><br><span class="line">viewRootImpl.getAccessibilityInteractionController().findAccessibilityNodeInfoByAccessibilityIdClientThread(&#x2F;* 参数 *&#x2F;)</span><br></pre></td></tr></table></figure>
+
+<p>调用的是 AccessibilityInteractionController，这个对象是在 ViewRootImpl 中构造出来的，构造方法就一个参数 ViewRootImpl 对象，看看这个 Controller 的 findAccessibilityNodeInfoByAccessibilityIdClientThread 方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; AccessibilityInteractionController# findAccessibilityNodeInfoByAccessibilityIdClientThread</span><br><span class="line"></span><br><span class="line">......</span><br><span class="line">scheduleMessage(message, interrogatingPid, interrogatingTid, CONSIDER_REQUEST_PREPARERS);</span><br></pre></td></tr></table></figure>
+
+<p>发了一条 Message，这个 scheduleMessage 方法通过 AccessibilityInteractionController 的内部类 PrivateHandler 在线程之间进行了消息通信，实际执行了方法 findAccessibilityNodeInfoByAccessibilityIdUiThread</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; AccessibilityInteractionController# findAccessibilityNodeInfoByAccessibilityIdUiThread</span><br><span class="line">......</span><br><span class="line"></span><br><span class="line"> View root &#x3D; null;</span><br><span class="line">if (accessibilityViewId &#x3D;&#x3D; AccessibilityNodeInfo.ROOT_ITEM_ID) &#123;</span><br><span class="line">    root &#x3D; mViewRootImpl.mView;</span><br><span class="line">&#125; </span><br><span class="line"></span><br><span class="line">......</span><br><span class="line"></span><br><span class="line">if (root !&#x3D; null &amp;&amp; isShown(root)) &#123;</span><br><span class="line">    mPrefetcher.prefetchAccessibilityNodeInfos(</span><br><span class="line">            root, virtualDescendantId, flags, infos, arguments);</span><br><span class="line">&#125;</span><br><span class="line">......</span><br><span class="line"></span><br><span class="line">finally &#123;</span><br><span class="line">    updateInfosForViewportAndReturnFindNodeResult(</span><br><span class="line">        infos, callback, interactionId, spec, interactiveRegion);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到，viewRoot 的成员 view 对象被指定为用来获取 AccessibilityNodeInfo 的 View。最后调用 updateInfosForViewportAndReturnFindNodeResult 通知 callback 本次 Remote Call 的结果。所以，mPrefetcher.prefetchAccessibilityNodeInfos 就显得关键了</p>
+<p>这个 mPrefetcher 实际是 AccessibilityInteractionController 的内部类 AccessibilityNodePrefetcher 对象，这个方法内调用了上面的 root，也即 View 对象的 createAccessibilityNodeInfo。<strong>这说明，AccessibilityNodeInfo 是通过 View 来创建的，</strong> 而实际的创建方法是</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; View# createAccessibilityNodeInfoInternal</span><br><span class="line"></span><br><span class="line">public AccessibilityNodeInfo createAccessibilityNodeInfoInternal() &#123;</span><br><span class="line">    ......</span><br><span class="line">    AccessibilityNodeInfo info &#x3D; AccessibilityNodeInfo.obtain(this);</span><br><span class="line">    onInitializeAccessibilityNodeInfo(info);</span><br><span class="line">    return info;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里先 obtain 一个 AccessibilityNodeInfo 对象，将 view 设置为 source</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; AccessibilityNodeInfo# obtain</span><br><span class="line"></span><br><span class="line">public static AccessibilityNodeInfo obtain(View source) &#123;</span><br><span class="line">    AccessibilityNodeInfo info &#x3D; AccessibilityNodeInfo.obtain();</span><br><span class="line">    info.setSource(source);</span><br><span class="line">    return info;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接下来初始化 AccessibilityNodeInfo，执行<br>onInitializeAccessibilityNodeInfoInternal，<br>这个方法比较长，但是将 view 的属性参数设置到 info 的属性为主，比如</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; View# onInitializeAccessibilityNodeInfoInternal</span><br><span class="line"></span><br><span class="line">info.setDisplayId</span><br><span class="line">info.setBoundsInScreen(bounds)</span><br><span class="line">info.setPackageName(mContext.getPackageName())</span><br><span class="line">info.setVisibleToUser(isVisibleToUser())</span><br></pre></td></tr></table></figure>
+
+<p>这个方法会被 View 的子类覆盖，比如 TextView，覆盖后会 set 一些属于该类型 View 才具备的属性</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">info.setText(getTextForAccessibility())</span><br></pre></td></tr></table></figure>
+
+<p>至此，info 的属性配置完毕，最后通过 AccessibilityInteractionController# findAccessibilityNodeInfoByAccessibilityIdUiThread 方法中的 finally 部分将 info 回传</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;AccessibilityInteractionController# updateInfosForViewportAndReturnFindNodeResult</span><br><span class="line"></span><br><span class="line">callback.setFindAccessibilityNodeInfosResult(infos, interactionId)</span><br></pre></td></tr></table></figure>
+
+
+<p>之后，远程服务的方法调用结束，AccessibilityInteractionClient 通过<br>getFindAccessibilityNodeInfosResultAndClear<br>方法中获得 info，并将第 1 个元素返回</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; AccessibilityInteractionController# findAccessibilityNodeInfoByAccessibilityId</span><br><span class="line"></span><br><span class="line">return infos.get(0);</span><br></pre></td></tr></table></figure>
+
+<p>到这里， AccessibilityWindowInfo# getRoot() 就取回了结果</p>
+<p>当然这个值也可能为 null，比如当远程调用异常时</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">catch (RemoteException re) &#123;</span><br><span class="line">    Log.e(LOG_TAG, &quot;Error while calling remote&quot;</span><br><span class="line">            + &quot; findAccessibilityNodeInfoByAccessibilityId&quot;, re);</span><br><span class="line">&#125;</span><br><span class="line">return null;</span><br></pre></td></tr></table></figure>
+
+<p>总结一下，要获取 root node，用到了</p>
+<ul>
+<li>AccessibilityInteractionClient</li>
+<li>AccessibilityManagerService</li>
+<li>ViewRootImpl</li>
+<li>AccessibilityInteractionController</li>
+<li>View</li>
+</ul>
+<p>AccessibilityNodeInfo 的属性是在对应的 View 或者其子类中进行设置的，因此它能够表示这个 View 的状态</p>
+<p>通过熟悉获取 root node 的流程，在遇到系统层问题时也能够做到排查问题心中有数</p>
+</section>
+    
+
+    <footer id="post-meta" class="clearfix">
+        <a href="/about/">
+        <img class="avatar" src="/images/mine.png">
+        <div>
+            <span class="dark">一个极其普通的程序员</span>
+            <span></span>
+        </div>
+        </a>
+        <section id="sharing">
+            <!--
+            <a title="Share to Twitter" class="twitter" href="https://twitter.com/intent/tweet?text=http://yoursite.com/2020/02/21/UiAutomator2%20%E7%9A%84%20Root%20Node/ - UiAutomator2 的 Root Node @" target="_blank" rel="noopener"><span class="icon-twitter">tweet</span></a>
+            <a title="Share to Facebook" class="facebook" href="#" onclick="
+                window.open(
+                  'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),
+                  'facebook-share-dialog',
+                  'width=626,height=436');
+                return false;"><span class="icon-facebook-sign">Share</span>
+            </a>
+            -->
+        </section>
+    </footer>
+
+
+  <section id="comment">
+    <button class="btn" id="loadcmts" onclick="cmts.load();">加载评论</button>
+    <div id="gitment"></div>
+    <script src='/js/gitment.browser.js'></script>
+    <link rel="stylesheet" href=''>
+    <script>
+      var cmts={
+        load:function cmts(){
+          var gitment = new Gitment({
+          
+            id: "UiAutomator2 的 Root Node",
+          
+            owner: "",
+            repo: "",
+            oauth: {
+              client_id: "",
+              client_secret: "",
+            },
+          })
+          gitment.render('gitment');
+          var loadcmt = document.getElementById("loadcmts");
+          var imyourfather = loadcmt.parentNode;
+          imyourfather.removeChild(loadcmts)
+        }
+      }
+    </script>
+  </section>
+
+
+	<footer id="footer">
+	<div id="social">
+		<p class="small">©  Henry Woo in CHJ Inc.
+		</p>
+	</div>
+</footer>
+
+</section>
+
+	<script src="//cdnjs.loli.net/ajax/libs/instantclick/3.0.1/instantclick.min.js" data-no-instant></script>
+	<script data-no-instant>
+		
+		InstantClick.init('mousedown');
+	</script>
+
+
+

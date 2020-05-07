@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+
+  <meta name="description" content="爬虫是一种批量快速高效获取网站数据的工具。随着前端反扒技术的不断迭代更新，使得想要爬取网站信息变得越发困难
+因此现在爬虫学习成本越来越高，但不会专业的爬虫技术我们依然可以通过其他方式去爬取数据，今天我介绍一下在 Android 手机上爬取某绿中介客户端的二手房数据信息
+思路是这样的，Android ">
+
+
+<link rel="alternate" href="/atom.xml" title="一个极其普通的程序员" type="application/atom+xml">
+<meta name="theme-color" content="#a1d0f6">
+<title>Android UiAutomator 爬取某房企二手房数据 - 一个极其普通的程序员</title>
+<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+<link rel="shortcut icon" href="/favicon.png">
+
+<link rel="stylesheet" href="/css/style.css">
+
+<nav class="main-nav">
+
+	
+	    <a href="/">← 主页</a>
+	
+	
+	    <a href="/about/">About</a>
+	
+	    <a href="/archives/">Archives</a>
+	
+	
+	<!--
+	<a class="cta" href="/atom.xml" data-no-instant>订阅</a>
+	-->
+</nav>
+
+<section id="wrapper">
+    <article class="post">
+    <header>
+        
+            <h1>Android UiAutomator 爬取某房企二手房数据</h1>
+        
+        <h2 class="headline">Mar 22 2020
+        
+        </h2>
+    </header>
+</article>
+<section id="post-body"><p>爬虫是一种批量快速高效获取网站数据的工具。随着前端反扒技术的不断迭代更新，使得想要爬取网站信息变得越发困难</p>
+<p>因此现在爬虫学习成本越来越高，但不会专业的爬虫技术我们依然可以通过其他方式去爬取数据，今天我介绍一下在 Android 手机上爬取某绿中介客户端的二手房数据信息</p>
+<p>思路是这样的，<code>Android UiAutomator</code> 可以定位控件，并且将其 text 信息获取下来，所以使用 <code>uiautomatorviewer</code> 先获取一份控件树分析一下</p>
+<p><img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1gejqmohat9j21ce0uwqov.jpg" alt="undefined"></p>
+<p><strong>发现可以一次获取一屏的 item 组，再从组中取出每一个 item 去分别获取它的 text 信息</strong>，这很关键</p>
+<p>继续观察 item，我们希望获取到这样几组信息</p>
+<ul>
+<li>标题，比如图中的“西北府一期南北三居”</li>
+<li>户型，面积，朝向，小区名</li>
+<li>总价和单价</li>
+</ul>
+<p>通过控件树查看，这些信息都可以定位并获取到</p>
+<p><img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1gejqn4wxkwj20ny04waaw.jpg" alt="undefined"></p>
+<p><img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1gejqnbfir7j20o202qmxf.jpg" alt="undefined"></p>
+<p><strong>那么我们通过 <code>resource-id</code> 去定位到控件，再获取控件的 text 就能拿到当前房子的数据</strong></p>
+<p>接下来就是设计信息抓取的流程了</p>
+<p>由于每一屏只能看到最多四条信息，因此获取完一屏，需要进行一个从底部到顶部的滑动操作，将新的页面展示到屏幕上，继续获取新数据，直到滑动到了最底部，则结束查找</p>
+<p>实际编码时需要考虑三个问题：</p>
+<ol>
+<li>处于屏幕最下方的 item 未完整露出来如何处理</li>
+<li>从哪个位置开始滑动到哪个位置停止</li>
+<li>如何判断见底了</li>
+</ol>
+<p>问题一，现象是这样的</p>
+<p><img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1gejqni6wj4j20ma0aqdku.jpg" alt="undefined"></p>
+<p>我们看到最后一个 item 没有显示全，因此获取不到户型，总价等数据，这里我的处理方式是<strong>如果能获取到标题但获取不到其他的数据，则进行一次屏幕滑动操作，再接着重新拿它的数据</strong></p>
+<p>问题二，从屏幕中部开始往上滑，效率太低，总是会有 item 被重复获取。因此<strong>从最后一个 item 开始滑动，并且终点坐标定在蓝色区域</strong>较好，不会让未获取的数据被覆盖掉</p>
+<p><img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1gejqnnn65nj20l60cmq7e.jpg" alt="undefined"></p>
+<p>问题三，由于 item 的个数是动态的，因此我们无法直接确定要获取多少个，这里我的策略是通过重复值确认是否见底，也即如果在检索某个 item 时，这个 item 的信息被重复多次获取到，那么说明已经到底数据底部，可以结束流程</p>
+<p>确认了流程，接下来就是定一下存储格式。由于 csv 格式比较简单，这里就通过写 csv 文件的方式进行数据保存</p>
+<p>通过以上的分析，就可以开始编码了，相关的源码如果需要可以后台留言给我，这里展示一下爬取结果</p>
+<p><img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1gejqnulibdj20rw0y817k.jpg" alt="undefined"></p>
+<p>上百条数据的爬取需要七八分钟的耗时，肯定是没办法跟网站爬虫比效率的，但，能拿到数据才是根本，哪怕是上万条数据，我们自动化的执行，晚上睡觉的时候让它自己跑，第二天就能拿到结果了</p>
+</section>
+    
+
+    <footer id="post-meta" class="clearfix">
+        <a href="/about/">
+        <img class="avatar" src="/images/mine.png">
+        <div>
+            <span class="dark">一个极其普通的程序员</span>
+            <span></span>
+        </div>
+        </a>
+        <section id="sharing">
+            <!--
+            <a title="Share to Twitter" class="twitter" href="https://twitter.com/intent/tweet?text=http://yoursite.com/2020/03/22/Android%20UiAutomator%20%E7%88%AC%E5%8F%96%E6%9F%90%E6%88%BF%E4%BC%81%E4%BA%8C%E6%89%8B%E6%88%BF%E6%95%B0%E6%8D%AE/ - Android UiAutomator 爬取某房企二手房数据 @" target="_blank" rel="noopener"><span class="icon-twitter">tweet</span></a>
+            <a title="Share to Facebook" class="facebook" href="#" onclick="
+                window.open(
+                  'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),
+                  'facebook-share-dialog',
+                  'width=626,height=436');
+                return false;"><span class="icon-facebook-sign">Share</span>
+            </a>
+            -->
+        </section>
+    </footer>
+
+
+  <section id="comment">
+    <button class="btn" id="loadcmts" onclick="cmts.load();">加载评论</button>
+    <div id="gitment"></div>
+    <script src='/js/gitment.browser.js'></script>
+    <link rel="stylesheet" href=''>
+    <script>
+      var cmts={
+        load:function cmts(){
+          var gitment = new Gitment({
+          
+            id: "Android UiAutomator 爬取某房企二手房数据",
+          
+            owner: "",
+            repo: "",
+            oauth: {
+              client_id: "",
+              client_secret: "",
+            },
+          })
+          gitment.render('gitment');
+          var loadcmt = document.getElementById("loadcmts");
+          var imyourfather = loadcmt.parentNode;
+          imyourfather.removeChild(loadcmts)
+        }
+      }
+    </script>
+  </section>
+
+
+	<footer id="footer">
+	<div id="social">
+		<p class="small">©  Henry Woo in CHJ Inc.
+		</p>
+	</div>
+</footer>
+
+</section>
+
+	<script src="//cdnjs.loli.net/ajax/libs/instantclick/3.0.1/instantclick.min.js" data-no-instant></script>
+	<script data-no-instant>
+		
+		InstantClick.init('mousedown');
+	</script>
+
+
+

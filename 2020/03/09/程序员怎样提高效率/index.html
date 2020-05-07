@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+
+  <meta name="description" content="作为程序员的我们，在日常工作中会发现，有的人工作效率非常高，完成业务工作的同时还能参加会议，听培训。再看看我们自己，起早贪黑的搬砖，推掉了各种会议，好像干了挺多事情，但又没干成一件事。扎心了老铁
+尽管每个人工作的方式不一样，专注力和持续时间也有差别，但一些方法上的东西，还是能够让自己的效率变得更好
+">
+
+
+<link rel="alternate" href="/atom.xml" title="一个极其普通的程序员" type="application/atom+xml">
+<meta name="theme-color" content="#a1d0f6">
+<title>程序员怎样提高效率 - 一个极其普通的程序员</title>
+<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+<link rel="shortcut icon" href="/favicon.png">
+
+<link rel="stylesheet" href="/css/style.css">
+
+<nav class="main-nav">
+
+	
+	    <a href="/">← 主页</a>
+	
+	
+	    <a href="/about/">About</a>
+	
+	    <a href="/archives/">Archives</a>
+	
+	
+	<!--
+	<a class="cta" href="/atom.xml" data-no-instant>订阅</a>
+	-->
+</nav>
+
+<section id="wrapper">
+    <article class="post">
+    <header>
+        
+            <h1>程序员怎样提高效率</h1>
+        
+        <h2 class="headline">Mar 09 2020
+        
+        </h2>
+    </header>
+</article>
+<section id="post-body"><p>作为程序员的我们，在日常工作中会发现，有的人工作效率非常高，完成业务工作的同时还能参加会议，听培训。再看看我们自己，起早贪黑的搬砖，推掉了各种会议，好像干了挺多事情，但又没干成一件事。扎心了老铁</p>
+<p>尽管每个人工作的方式不一样，专注力和持续时间也有差别，但一些方法上的东西，还是能够让自己的效率变得更好</p>
+<p>首先，要脚本化我们的工作</p>
+<p>我们涉及到的日常开发，不外乎主要是 IDE，撸代码，编译，查看 bug，使用命令行等。我列举几个会消耗时间的场景</p>
+<ol>
+<li>想编译一段代码并打包成 apk。启动 Android Studio -&gt; 2分钟后 -&gt; 点开 Gradle，依次点开 app-build-assembleDebug -&gt; 等待编译完成 -&gt; 依次点开 build-outputs-apk-debug，找到目标 apk -&gt;拷贝出来</li>
+<li>最近有个正在跟踪的 bug 需要我去盯一下。打开浏览器 -&gt; 打开 JIRA -&gt; 找到项目 -&gt; 找到这条 bug</li>
+<li>需要频繁的使用某几个命令行去读取数据。比如：</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> adb shell ps | grep test.xxx</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 得到结果 11223</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> adb shell <span class="built_in">kill</span> 11223</span></span><br></pre></td></tr></table></figure>
+
+<p>这些看上去不起眼的“多余”操作，正在一点一点侵蚀我们的时间，让我们的办公效率变得非常低下。但是这样的过程有一个特点，就是流程化非常强，非常适合将它们脚本化</p>
+<p>通常的做法是使用 shell （Unix/Linix） 或者 bat（Windows）去整合它们，做成“一键式”的操作</p>
+<p>这其实就是一种自动化的思想，让机器代替我们完成重复的事。假如这件事你会在之后频繁地被使用到</p>
+<p>其次，记下我们的过程</p>
+<p>具体要记下的是我们思路形成的过程和在实施操作的过程，也可以称之为“笔记”。例如，设计图，方案文档，代码注释</p>
+<p>对于一些逻辑比较复杂的功能，尽量保证先出设计图。所谓“磨刀不误砍柴工”，作图的过程看似花时间，但其实是捋顺思路的过程，是思路从抽象变为具体的过程。这个步骤中，能将一些实际不可行的部分剔除掉，保留经过验证的部分，代码实施起来更加舒畅。如果没有这一步的指引，写起代码就如同堵车的道路，写一段停一段想一段，时间流逝得更多</p>
+<p>代码注释，某种程度上是给将来改 bug 的自己用的。毕竟繁重的工作会要求我们同时跟好几个项目，如果几天以后连自己写的代码都搞不清楚，要通过读一遍才能明白当初的实现原理，说明注释写得不够详细</p>
+<p>第三，使用程序化思维</p>
+<p>程序员的一个职业病就是容易程序化思维去想事情。比如经常被产品吐槽：沟通的时候喜欢优先思考能不能用技术将需求做出来。但在关于工作效率的提升上，鼓励多用这种思维</p>
+<p>什么意思呢，就是在准备做一件事情时，多想想能不能用代码去替我完成，能用机器的绝不用手</p>
+<p>比如像处理文本的时候，涉及到重复的行为，那一定优先用程序化思维去解决。发现行为中的规律性，或者创造一些规律性出来</p>
+<p>举个例子，有一次某个测试经理要求测试人员更改 Excel 用例文件的格式。其中涉及到拆分单元格，合并行的操作，并安排了一下午的时间进行调整。于是大部分同学就在表格里 copy，paste。我在之前的文章里写过，程序员要有偷懒的意识（这篇：）于是有一个人花了半个小时的时间去摸出规律性，花了一个小时的时间把代码写好并调试出来，总共用了不到两小时完成了这次格式的调整，最后按时下班回家，其他人据说加了两小时班才弄完</p>
+<p>这就是程序化思维的效率。看上去起步慢，但最终执行起来却很快</p>
+<p>对于程序员来说，时间就是钱（毕竟贵），能在更短的时间输出更大的生产力，就能对外输出更大的价值</p>
+<p>同样是一段代码，我们能写，能写出这样代码的人也很多，如何体现出差距呢？</p>
+<p>花更少的时间完成，额外的时间去补充新的知识，就是差距的地方</p>
+</section>
+    
+
+    <footer id="post-meta" class="clearfix">
+        <a href="/about/">
+        <img class="avatar" src="/images/mine.png">
+        <div>
+            <span class="dark">一个极其普通的程序员</span>
+            <span></span>
+        </div>
+        </a>
+        <section id="sharing">
+            <!--
+            <a title="Share to Twitter" class="twitter" href="https://twitter.com/intent/tweet?text=http://yoursite.com/2020/03/09/%E7%A8%8B%E5%BA%8F%E5%91%98%E6%80%8E%E6%A0%B7%E6%8F%90%E9%AB%98%E6%95%88%E7%8E%87/ - 程序员怎样提高效率 @" target="_blank" rel="noopener"><span class="icon-twitter">tweet</span></a>
+            <a title="Share to Facebook" class="facebook" href="#" onclick="
+                window.open(
+                  'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),
+                  'facebook-share-dialog',
+                  'width=626,height=436');
+                return false;"><span class="icon-facebook-sign">Share</span>
+            </a>
+            -->
+        </section>
+    </footer>
+
+
+  <section id="comment">
+    <button class="btn" id="loadcmts" onclick="cmts.load();">加载评论</button>
+    <div id="gitment"></div>
+    <script src='/js/gitment.browser.js'></script>
+    <link rel="stylesheet" href=''>
+    <script>
+      var cmts={
+        load:function cmts(){
+          var gitment = new Gitment({
+          
+            id: "程序员怎样提高效率",
+          
+            owner: "",
+            repo: "",
+            oauth: {
+              client_id: "",
+              client_secret: "",
+            },
+          })
+          gitment.render('gitment');
+          var loadcmt = document.getElementById("loadcmts");
+          var imyourfather = loadcmt.parentNode;
+          imyourfather.removeChild(loadcmts)
+        }
+      }
+    </script>
+  </section>
+
+
+	<footer id="footer">
+	<div id="social">
+		<p class="small">©  Henry Woo in CHJ Inc.
+		</p>
+	</div>
+</footer>
+
+</section>
+
+	<script src="//cdnjs.loli.net/ajax/libs/instantclick/3.0.1/instantclick.min.js" data-no-instant></script>
+	<script data-no-instant>
+		
+		InstantClick.init('mousedown');
+	</script>
+
+
+

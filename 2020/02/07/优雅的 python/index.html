@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+
+  <meta name="description" content="python 代码简洁，入门门槛低，成为不少初学编程者的首选。那么恭喜，毕竟白纸一张，直接学习 pythonic 的写法更容易记忆。但像我这种平时办公经常使用 Java 的工程师来说，把 python 写成 Java 的方式，不仅效率低，而且代码冗余很难看，因此有必要总结一下我所知道的优雅的 pyt">
+
+
+<link rel="alternate" href="/atom.xml" title="一个极其普通的程序员" type="application/atom+xml">
+<meta name="theme-color" content="#a1d0f6">
+<title>优雅的 python - 一个极其普通的程序员</title>
+<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+<link rel="shortcut icon" href="/favicon.png">
+
+<link rel="stylesheet" href="/css/style.css">
+
+<nav class="main-nav">
+
+	
+	    <a href="/">← 主页</a>
+	
+	
+	    <a href="/about/">About</a>
+	
+	    <a href="/archives/">Archives</a>
+	
+	
+	<!--
+	<a class="cta" href="/atom.xml" data-no-instant>订阅</a>
+	-->
+</nav>
+
+<section id="wrapper">
+    <article class="post">
+    <header>
+        
+            <h1>优雅的 python</h1>
+        
+        <h2 class="headline">Feb 07 2020
+        
+        </h2>
+    </header>
+</article>
+<section id="post-body"><p>python 代码简洁，入门门槛低，成为不少初学编程者的首选。那么恭喜，毕竟白纸一张，直接学习 pythonic 的写法更容易记忆。但像我这种平时办公经常使用 Java 的工程师来说，把 python 写成 Java 的方式，不仅效率低，而且代码冗余很难看，因此有必要总结一下我所知道的优雅的 python 代码 </p>
+<h4 id="多个变量赋值"><a href="#多个变量赋值" class="headerlink" title="多个变量赋值"></a>多个变量赋值</h4><p>给 a, b, c, d 赋值</p>
+<p>普通写法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; a&#x3D;1</span><br><span class="line">&gt;&gt;&gt; b&#x3D;2</span><br><span class="line">&gt;&gt;&gt; c&#x3D;3</span><br><span class="line">&gt;&gt;&gt; d&#x3D;4</span><br></pre></td></tr></table></figure>
+
+<p>优雅的写法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; a,b,c,d&#x3D;6,7,8,9</span><br></pre></td></tr></table></figure>
+
+<p>注：这种赋值方法可以不是一个类型</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; a,b,c,d&#x3D;6,&#39;7&#39;,8,&#39;9&#39;</span><br></pre></td></tr></table></figure>
+
+
+<h4 id="交换变量值"><a href="#交换变量值" class="headerlink" title="交换变量值"></a>交换变量值</h4><p>交换 a 和 b 变量的值</p>
+<p>普通写法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; tmp &#x3D; b</span><br><span class="line">&gt;&gt;&gt; b &#x3D; a</span><br><span class="line">&gt;&gt;&gt; a &#x3D; tmp</span><br></pre></td></tr></table></figure>
+
+<p>优雅的写法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; a, b &#x3D; b, a</span><br></pre></td></tr></table></figure>
+
+<h4 id="序列化解包（unpack）"><a href="#序列化解包（unpack）" class="headerlink" title="序列化解包（unpack）"></a>序列化解包（unpack）</h4><p>将一个列表中的值赋给变量</p>
+<p>普通写法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; _list &#x3D; [&#39;刘能&#39;,50,&#39;male&#39;]</span><br><span class="line">&gt;&gt;&gt; name &#x3D; _list[0]</span><br><span class="line">&gt;&gt;&gt; age &#x3D; _list[1]</span><br><span class="line">&gt;&gt;&gt; gender &#x3D; _list[2]</span><br></pre></td></tr></table></figure>
+
+<p>优雅的写法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; n,a,g&#x3D;_list</span><br><span class="line">&gt;&gt;&gt; n</span><br><span class="line">&#39;刘能&#39;</span><br><span class="line">&gt;&gt;&gt; a</span><br><span class="line">50</span><br><span class="line">&gt;&gt;&gt; g</span><br><span class="line">&#39;male&#39;</span><br><span class="line">&gt;&gt;&gt;</span><br></pre></td></tr></table></figure>
+
+<h4 id="类-Java-三目运算"><a href="#类-Java-三目运算" class="headerlink" title="类 Java 三目运算"></a>类 Java 三目运算</h4><p>普通写法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; x &#x3D; None</span><br><span class="line">&gt;&gt;&gt; y &#x3D; 1</span><br><span class="line">&gt;&gt;&gt; if y &gt; 1:</span><br><span class="line">...    x &#x3D; 0</span><br><span class="line">... else:</span><br><span class="line">...    x &#x3D; 1</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>优雅的写法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; y &#x3D; 1</span><br><span class="line">&gt;&gt;&gt; x &#x3D; 0 if y &gt; 1 else 1</span><br></pre></td></tr></table></figure>
+
+<h4 id="拼接字符串"><a href="#拼接字符串" class="headerlink" title="拼接字符串"></a>拼接字符串</h4><p>将列表中的字符串拼接起来</p>
+<p>普通写法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">_list &#x3D; [&#39;a&#39;,&#39;b&#39;,&#39;c&#39;,&#39;d&#39;,&#39;e&#39;]</span><br><span class="line">_merge &#x3D; &#39;&#39;</span><br><span class="line">for x in _list:</span><br><span class="line">    _merge +&#x3D; x</span><br></pre></td></tr></table></figure>
+
+<p>优雅的写法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">_merge &#x3D; &#39;&#39;.join(_list)</span><br></pre></td></tr></table></figure>
+
+<p>添加分隔符的话</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">_merge &#x3D; &#39;,&#39;.join(_list)</span><br></pre></td></tr></table></figure>
+<h4 id="多个条件的判断"><a href="#多个条件的判断" class="headerlink" title="多个条件的判断"></a>多个条件的判断</h4><p>“与”</p>
+<p>普通写法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">if exp1 and exp2 and exp3 and exp4:</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>优雅的写法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">if all([exp1,exp2,exp3,exp4])</span><br></pre></td></tr></table></figure>
+
+<p>“或”</p>
+<p>优雅的写法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">if any([exp1,exp2,exp3,exp4])</span><br></pre></td></tr></table></figure>
+
+<h4 id="遍历迭代器时同时访问索引"><a href="#遍历迭代器时同时访问索引" class="headerlink" title="遍历迭代器时同时访问索引"></a>遍历迭代器时同时访问索引</h4><p>普通写法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">_list &#x3D; [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;, &#39;d&#39;, &#39;e&#39;]</span><br><span class="line">for i in range(len(_list)):</span><br><span class="line">    print(_list[i])</span><br></pre></td></tr></table></figure>
+
+<p>优雅的写法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">for index, value in enumerate(_list):</span><br><span class="line">    print(&#39;&#123;0&#125;,&#123;1&#125;&#39;.format(index, value))</span><br></pre></td></tr></table></figure>
+
+<h4 id="非空的判断"><a href="#非空的判断" class="headerlink" title="非空的判断"></a>非空的判断</h4><p>判断字符串，列表，字典非空</p>
+<p>普通写法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">a &#x3D; &#39;&#39;</span><br><span class="line">b &#x3D; []</span><br><span class="line">c &#x3D; &#123;&#125;</span><br><span class="line"></span><br><span class="line">if a !&#x3D; &#39;&#39;:</span><br><span class="line">    pass</span><br><span class="line"></span><br><span class="line">if len(b) &gt; 0:</span><br><span class="line">    pass</span><br></pre></td></tr></table></figure>
+
+<p>优雅的写法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">if a:</span><br><span class="line">    pass</span><br><span class="line">if b:</span><br><span class="line">    pass</span><br></pre></td></tr></table></figure>
+
+<h4 id="列表构造字典"><a href="#列表构造字典" class="headerlink" title="列表构造字典"></a>列表构造字典</h4><p>普通写法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">_keys &#x3D; [&#39;1&#39;, &#39;2&#39;, &#39;3&#39;]</span><br><span class="line">_values &#x3D; [&#39;v1&#39;, &#39;v2&#39;, &#39;v3&#39;]</span><br><span class="line">_dict &#x3D; &#123;&#125;</span><br><span class="line">for i in range(len(_keys)):</span><br><span class="line">    _dict[_keys[i]] &#x3D; _values[i]</span><br></pre></td></tr></table></figure>
+
+
+<p>优雅的写法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">_dict &#x3D; dict(zip(_keys,_values))</span><br></pre></td></tr></table></figure>
+<p>写到这里，感觉 python 真的是太优雅了，如果用年龄来形容，就像一个 20 出头的妙龄少女，充满了青春与活力，让人忍不住想要亲近。哦对了，写到这里，感觉 Java 写起来就像 50 岁的大妈。对不起，大妈再老，也是吃饭的本钱</p>
+</section>
+    
+
+    <footer id="post-meta" class="clearfix">
+        <a href="/about/">
+        <img class="avatar" src="/images/mine.png">
+        <div>
+            <span class="dark">一个极其普通的程序员</span>
+            <span></span>
+        </div>
+        </a>
+        <section id="sharing">
+            <!--
+            <a title="Share to Twitter" class="twitter" href="https://twitter.com/intent/tweet?text=http://yoursite.com/2020/02/07/%E4%BC%98%E9%9B%85%E7%9A%84%20python/ - 优雅的 python @" target="_blank" rel="noopener"><span class="icon-twitter">tweet</span></a>
+            <a title="Share to Facebook" class="facebook" href="#" onclick="
+                window.open(
+                  'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),
+                  'facebook-share-dialog',
+                  'width=626,height=436');
+                return false;"><span class="icon-facebook-sign">Share</span>
+            </a>
+            -->
+        </section>
+    </footer>
+
+
+  <section id="comment">
+    <button class="btn" id="loadcmts" onclick="cmts.load();">加载评论</button>
+    <div id="gitment"></div>
+    <script src='/js/gitment.browser.js'></script>
+    <link rel="stylesheet" href=''>
+    <script>
+      var cmts={
+        load:function cmts(){
+          var gitment = new Gitment({
+          
+            id: "优雅的 python",
+          
+            owner: "",
+            repo: "",
+            oauth: {
+              client_id: "",
+              client_secret: "",
+            },
+          })
+          gitment.render('gitment');
+          var loadcmt = document.getElementById("loadcmts");
+          var imyourfather = loadcmt.parentNode;
+          imyourfather.removeChild(loadcmts)
+        }
+      }
+    </script>
+  </section>
+
+
+	<footer id="footer">
+	<div id="social">
+		<p class="small">©  Henry Woo in CHJ Inc.
+		</p>
+	</div>
+</footer>
+
+</section>
+
+	<script src="//cdnjs.loli.net/ajax/libs/instantclick/3.0.1/instantclick.min.js" data-no-instant></script>
+	<script data-no-instant>
+		
+		InstantClick.init('mousedown');
+	</script>
+
+
+

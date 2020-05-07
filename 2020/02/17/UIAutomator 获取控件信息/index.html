@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+
+  <meta name="description" content="Android UIAutomator 是调用的 Accessibility 中的逻辑来实现对 UI 控件的查找。今天分享一下关于 UI 控件获取的逻辑
+UiDevice 中有一个方法是用来 dump 控件结构树的，如下
+123456public static void dumpWindowHier">
+
+
+<link rel="alternate" href="/atom.xml" title="一个极其普通的程序员" type="application/atom+xml">
+<meta name="theme-color" content="#a1d0f6">
+<title>UIAutomator 获取控件信息 - 一个极其普通的程序员</title>
+<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+<link rel="shortcut icon" href="/favicon.png">
+
+<link rel="stylesheet" href="/css/style.css">
+
+<nav class="main-nav">
+
+	
+	    <a href="/">← 主页</a>
+	
+	
+	    <a href="/about/">About</a>
+	
+	    <a href="/archives/">Archives</a>
+	
+	
+	<!--
+	<a class="cta" href="/atom.xml" data-no-instant>订阅</a>
+	-->
+</nav>
+
+<section id="wrapper">
+    <article class="post">
+    <header>
+        
+            <h1>UIAutomator 获取控件信息</h1>
+        
+        <h2 class="headline">Feb 17 2020
+        
+        </h2>
+    </header>
+</article>
+<section id="post-body"><p>Android UIAutomator 是调用的 Accessibility 中的逻辑来实现对 UI 控件的查找。今天分享一下关于 UI 控件获取的逻辑</p>
+<p>UiDevice 中有一个方法是用来 dump 控件结构树的，如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">public static void dumpWindowHierarchy(UiDevice device, OutputStream out) throws IOException &#123;</span><br><span class="line">        ......</span><br><span class="line">        for (AccessibilityNodeInfo root : device.getWindowRoots()) &#123;</span><br><span class="line">            dumpNodeRec(root, serializer, 0, device.getDisplayWidth(), device.getDisplayHeight());</span><br><span class="line">        &#125;</span><br><span class="line">        ......</span><br></pre></td></tr></table></figure>
+
+<p>其中有一个核心方法 getWindowRoots，是今天的主角。该方法通过一个集合来存储 AccessibilityNodeInfo，表明不会存放重复的 Node，同时，这个类可以简单理解为 View 的快照，View 的状态可以从该类属性中读取到</p>
+<p>首先尝试获取一个 Active Window 的根 root</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">AccessibilityNodeInfo activeRoot &#x3D; getUiAutomation().getRootInActiveWindow();</span><br></pre></td></tr></table></figure>
+
+<p>Active Window 是这样的 Window: 当前用户正在触摸（touching） 的窗口或者具备输入焦点（input focus）的窗口（如果用户当前没有touch 窗口），如果这个根 root 非 null 则放入 Set 中作为第一个元素</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Set&lt;AccessibilityNodeInfo&gt; roots &#x3D; new HashSet();</span><br></pre></td></tr></table></figure>
+
+
+<p>接下来，尝试获取当前 Screen 的所有 Window 的快照 AccessibilityWindowInfo，不过这必须是 API 21 及以上版本才支持，现在的机型都可以认为已经支持了</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">List&lt;AccessibilityWindowInfo&gt; windows &#x3D; getUiAutomation().getWindows();</span><br></pre></td></tr></table></figure>
+
+<p>并且获取到每个 Window 的根节点快照，如果非 null 就添加到 Set 中</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">for (AccessibilityWindowInfo window : windows) &#123;</span><br><span class="line">    AccessibilityNodeInfo root &#x3D; window.getRoot();</span><br><span class="line">    if (root &#x3D;&#x3D; null) &#123;</span><br><span class="line">        continue;</span><br><span class="line">    &#125;</span><br><span class="line">    roots.add(root);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>至此，就获取到了当前 Screen 下的所有根节点信息，完成了控件遍历起点的准备工作，接下来就是遍历根节点的子节点，完成控件搜索的过程，参考这篇文章：</p>
+<p>这里，要提几点的是：</p>
+<ol>
+<li>获取的所有 Window 是包含 Active Window 的，所以其根节点也会被重复读取一次</li>
+<li>为何不直接通过该方法获取，而需要专门先获取一次呢？因为这样就能达到优先搜索 Active Window 下控件的目的，减少搜索的时间</li>
+<li>有时 getRootInActiveWindow 返回 null，但仍然可以通过 Window 来获取 root node</li>
+</ol>
+<p>通过 Window root 来遍历控件是核心入口，通过它逐步开枝散叶去查找所有控件 herarchy，而作为二次开发的核心，也可以从 AccessibilityNodeInfo 的产生入手去探索研究 </p>
+</section>
+    
+
+    <footer id="post-meta" class="clearfix">
+        <a href="/about/">
+        <img class="avatar" src="/images/mine.png">
+        <div>
+            <span class="dark">一个极其普通的程序员</span>
+            <span></span>
+        </div>
+        </a>
+        <section id="sharing">
+            <!--
+            <a title="Share to Twitter" class="twitter" href="https://twitter.com/intent/tweet?text=http://yoursite.com/2020/02/17/UIAutomator%20%E8%8E%B7%E5%8F%96%E6%8E%A7%E4%BB%B6%E4%BF%A1%E6%81%AF/ - UIAutomator 获取控件信息 @" target="_blank" rel="noopener"><span class="icon-twitter">tweet</span></a>
+            <a title="Share to Facebook" class="facebook" href="#" onclick="
+                window.open(
+                  'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),
+                  'facebook-share-dialog',
+                  'width=626,height=436');
+                return false;"><span class="icon-facebook-sign">Share</span>
+            </a>
+            -->
+        </section>
+    </footer>
+
+
+  <section id="comment">
+    <button class="btn" id="loadcmts" onclick="cmts.load();">加载评论</button>
+    <div id="gitment"></div>
+    <script src='/js/gitment.browser.js'></script>
+    <link rel="stylesheet" href=''>
+    <script>
+      var cmts={
+        load:function cmts(){
+          var gitment = new Gitment({
+          
+            id: "UIAutomator 获取控件信息",
+          
+            owner: "",
+            repo: "",
+            oauth: {
+              client_id: "",
+              client_secret: "",
+            },
+          })
+          gitment.render('gitment');
+          var loadcmt = document.getElementById("loadcmts");
+          var imyourfather = loadcmt.parentNode;
+          imyourfather.removeChild(loadcmts)
+        }
+      }
+    </script>
+  </section>
+
+
+	<footer id="footer">
+	<div id="social">
+		<p class="small">©  Henry Woo in CHJ Inc.
+		</p>
+	</div>
+</footer>
+
+</section>
+
+	<script src="//cdnjs.loli.net/ajax/libs/instantclick/3.0.1/instantclick.min.js" data-no-instant></script>
+	<script data-no-instant>
+		
+		InstantClick.init('mousedown');
+	</script>
+
+
+

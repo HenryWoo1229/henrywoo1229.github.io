@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+
+  <meta name="description" content="有时候要分析 apk 中的内容，比如 AndroidManifest，或者 dex 文件，这里分享 2 个常用的工具
+apktool官方地址：https://ibotpeaches.github.io/Apktool/
+该工具在解析 xml 文件方面比较给力，比如 AndroidManifest.x">
+
+
+<link rel="alternate" href="/atom.xml" title="一个极其普通的程序员" type="application/atom+xml">
+<meta name="theme-color" content="#a1d0f6">
+<title>反编译 apk 的常用工具 - 一个极其普通的程序员</title>
+<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+<link rel="shortcut icon" href="/favicon.png">
+
+<link rel="stylesheet" href="/css/style.css">
+
+<nav class="main-nav">
+
+	
+	    <a href="/">← 主页</a>
+	
+	
+	    <a href="/about/">About</a>
+	
+	    <a href="/archives/">Archives</a>
+	
+	
+	<!--
+	<a class="cta" href="/atom.xml" data-no-instant>订阅</a>
+	-->
+</nav>
+
+<section id="wrapper">
+    <article class="post">
+    <header>
+        
+            <h1>反编译 apk 的常用工具</h1>
+        
+        <h2 class="headline">Feb 10 2020
+        
+        </h2>
+    </header>
+</article>
+<section id="post-body"><p>有时候要分析 apk 中的内容，比如 AndroidManifest，或者 dex 文件，这里分享 2 个常用的工具</p>
+<h4 id="apktool"><a href="#apktool" class="headerlink" title="apktool"></a>apktool</h4><p>官方地址：<a href="https://ibotpeaches.github.io/Apktool/" target="_blank" rel="noopener">https://ibotpeaches.github.io/Apktool/</a></p>
+<p>该工具在解析 xml 文件方面比较给力，比如 AndroidManifest.xml 或者是 res 目录下的布局 xml。当然它也能解析出代码，但生成的格式是 smali 或者 kotlin_metadata，不方便阅读，因此我常用来解析 xml 用</p>
+<p>反编译用法也简单</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ java -jar apktool.jar d test.apk</span><br></pre></td></tr></table></figure>
+
+<p>就在工具目录下生成 apk 同名目录</p>
+<p>同时，它还能将反编译的包再打包生成 apk 文件，命令同样简单</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ java -jar apktool.jar b test --frame-path $ANDROID_HOME</span><br></pre></td></tr></table></figure>
+
+<p>这样在 test 包下的 dist 目录中生成 apk</p>
+<h4 id="dex2jar"><a href="#dex2jar" class="headerlink" title="dex2jar"></a>dex2jar</h4><p>地址：<a href="https://github.com/pxb1988/dex2jar" target="_blank" rel="noopener">https://github.com/pxb1988/dex2jar</a></p>
+<p>这个工具用来解析 classes.dex 文件，解析完成后用查看 class 文件的工具，比如 jd-gui.exe 就能阅读源码了</p>
+<p>这个工具是个套件，支持多种转换格式，我常用的就是 d2j-dex2jar.jar </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ d2j-dex2jar.jar --force classes.dex</span><br></pre></td></tr></table></figure>
+
+<p>在目录下生成  classes.jar 就是转换好的 class 文件。注意经常更新到最新版本，才能更好支持到新版本的 Android apk 编译的 dex 文件</p>
+<p>今天的分享就到这里，利用好这两个工具，能够在日常分析 Android 问题的过程中带来很大的便利</p>
+</section>
+    
+
+    <footer id="post-meta" class="clearfix">
+        <a href="/about/">
+        <img class="avatar" src="/images/mine.png">
+        <div>
+            <span class="dark">一个极其普通的程序员</span>
+            <span></span>
+        </div>
+        </a>
+        <section id="sharing">
+            <!--
+            <a title="Share to Twitter" class="twitter" href="https://twitter.com/intent/tweet?text=http://yoursite.com/2020/02/10/%E5%8F%8D%E7%BC%96%E8%AF%91%20apk%20%E7%9A%84%E5%B8%B8%E7%94%A8%E5%B7%A5%E5%85%B7/ - 反编译 apk 的常用工具 @" target="_blank" rel="noopener"><span class="icon-twitter">tweet</span></a>
+            <a title="Share to Facebook" class="facebook" href="#" onclick="
+                window.open(
+                  'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),
+                  'facebook-share-dialog',
+                  'width=626,height=436');
+                return false;"><span class="icon-facebook-sign">Share</span>
+            </a>
+            -->
+        </section>
+    </footer>
+
+
+  <section id="comment">
+    <button class="btn" id="loadcmts" onclick="cmts.load();">加载评论</button>
+    <div id="gitment"></div>
+    <script src='/js/gitment.browser.js'></script>
+    <link rel="stylesheet" href=''>
+    <script>
+      var cmts={
+        load:function cmts(){
+          var gitment = new Gitment({
+          
+            id: "反编译 apk 的常用工具",
+          
+            owner: "",
+            repo: "",
+            oauth: {
+              client_id: "",
+              client_secret: "",
+            },
+          })
+          gitment.render('gitment');
+          var loadcmt = document.getElementById("loadcmts");
+          var imyourfather = loadcmt.parentNode;
+          imyourfather.removeChild(loadcmts)
+        }
+      }
+    </script>
+  </section>
+
+
+	<footer id="footer">
+	<div id="social">
+		<p class="small">©  Henry Woo in CHJ Inc.
+		</p>
+	</div>
+</footer>
+
+</section>
+
+	<script src="//cdnjs.loli.net/ajax/libs/instantclick/3.0.1/instantclick.min.js" data-no-instant></script>
+	<script data-no-instant>
+		
+		InstantClick.init('mousedown');
+	</script>
+
+
+

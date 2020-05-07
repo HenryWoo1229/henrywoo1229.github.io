@@ -76,7 +76,7 @@
 
 <p>如果是空的单元格，返回的 value=None</p>
 <p>没有关闭工作簿时，手动打开这个表格会提示已经锁定了</p>
-<p><img src="https://note.youdao.com/yws/res/10019/31E28D3F5DE046D99EA1CB9F673EE63A" alt="image"></p>
+<p><img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1gejpd4p6g5j20go04g748.jpg" alt="undefined"></p>
 <p>所以及时关闭，最好在使用的块外用 try-finally 保证每次都会关闭</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">try:</span><br><span class="line">   # do-something-here</span><br><span class="line">finally:</span><br><span class="line">   workbook.close()</span><br><span class="line">   app.quit()</span><br></pre></td></tr></table></figure>
 
@@ -99,7 +99,7 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">import matplotlib.pyplot as plt</span><br><span class="line"></span><br><span class="line">fig &#x3D; plt.figure()</span><br><span class="line">plt.plot([1, 2, 3])</span><br><span class="line"></span><br><span class="line">sheet &#x3D; workbook.sheets[0]</span><br><span class="line">sheet.pictures.add(fig, name&#x3D;&#39;plot&#39;, update&#x3D;True)</span><br><span class="line">workbook.save(&#39;picture.xlsx&#39;)</span><br></pre></td></tr></table></figure>
 
 <p>打开 picture.xlsx</p>
-<p><img src="https://note.youdao.com/yws/res/10083/DE8F9511480D4D71B8CE189E1F211718" alt="image"></p>
+<p><img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1gejpdy2v6mj20oc0i0gmy.jpg" alt="undefined"></p>
 <p>今天分享了 xlwings 库在 Python 中处理 Excel 的基本操作，实现数据的读写掌握上面的内容基本足够了，我根据上面的内容，实现了一个处理数据的需求交付业务测试使用，更多 API 和功能的使用方法建议查询官网，网上很多博客写的东西太简单，写得也不怎么样</p>
 </section>
     

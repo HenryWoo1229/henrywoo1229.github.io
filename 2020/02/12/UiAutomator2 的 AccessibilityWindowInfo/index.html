@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+
+  <meta name="description" content="上次写到 UiAutomator2 封装 Accessibility 接口时提到了 Root Node，不明白的可以先看这一篇： 。通过根节点的方式遍历整个 Window 的控件树从而寻找要查找的控件。那有时就会遇到异常的情况：明明截图中看得到控件，但控件查找时却找不到它，问题会出在哪里？今天继续从">
+
+
+<link rel="alternate" href="/atom.xml" title="一个极其普通的程序员" type="application/atom+xml">
+<meta name="theme-color" content="#a1d0f6">
+<title>UiAutomator2 的 AccessibilityWindowInfo - 一个极其普通的程序员</title>
+<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+<link rel="shortcut icon" href="/favicon.png">
+
+<link rel="stylesheet" href="/css/style.css">
+
+<nav class="main-nav">
+
+	
+	    <a href="/">← 主页</a>
+	
+	
+	    <a href="/about/">About</a>
+	
+	    <a href="/archives/">Archives</a>
+	
+	
+	<!--
+	<a class="cta" href="/atom.xml" data-no-instant>订阅</a>
+	-->
+</nav>
+
+<section id="wrapper">
+    <article class="post">
+    <header>
+        
+            <h1>UiAutomator2 的 AccessibilityWindowInfo</h1>
+        
+        <h2 class="headline">Feb 12 2020
+        
+        </h2>
+    </header>
+</article>
+<section id="post-body"><p>上次写到 UiAutomator2 封装 Accessibility 接口时提到了 Root Node，不明白的可以先看这一篇： 。通过根节点的方式遍历整个 Window 的控件树从而寻找要查找的控件。那有时就会遇到异常的情况：明明截图中看得到控件，但控件查找时却找不到它，问题会出在哪里？今天继续从源码角度来分析一下，作为 Root Node 的载体，AccessibilityWindowInfo 是怎么创建的</p>
+<p>我们从 UiDevice# getWindows 方法开始探索</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; UiDevice# getWindows</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">List&lt;AccessibilityWindowInfo&gt; windows &#x3D; getUiAutomation().getWindows();</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>调用了 UiAutomation 的方法，而 UiAutomation 又是调的 AccessibilityInteractionClient 的方法，然后远程调用系统服务 AccessibilityManagerService 的 getWindows 方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; AccessibilityManagerService$ Service# getWindows </span><br><span class="line"></span><br><span class="line">final int windowCount &#x3D; getSecurityPolicy(displayId).mWindows.size();</span><br><span class="line">    for (int i &#x3D; 0; i &lt; windowCount; i++) &#123;</span><br><span class="line">        AccessibilityWindowInfo window &#x3D; getSecurityPolicy(displayId).mWindows.get(i);</span><br><span class="line">        AccessibilityWindowInfo windowClone &#x3D;</span><br><span class="line">                AccessibilityWindowInfo.obtain(window);</span><br><span class="line">        windowClone.setConnectionId(mId);</span><br><span class="line">        windows.add(windowClone);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这段代码中关键是 getSecurityPolicy(displayId) 的成员 mWindows，而 get 方法拿到的是 AccessibilityManagerService 的内部类 SecurityPolicy mWindows 是其一个 List</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; AccessibilityManagerService$ SecurityPolicy</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; In Z order</span><br><span class="line">public List&lt;AccessibilityWindowInfo&gt; mWindows;</span><br></pre></td></tr></table></figure>
+
+<p>注释中 Z order 的意思是，这里存放的 AccessibilityWindowInfo 是三维空间中 Z 轴上的 Window，也即层叠起来的 Window，类似于 Photoshop 作图里的图层</p>
+<p>搜索一下 mWindows.add，发现只有一处，并且属于方法 updateWindowsLocked(List<WindowInfo> windows)。所以得出结论，<strong>AccessibilityWindowInfo 是通过某处代码调用 SecurityPolicy# updateWindowsLocked 创建出来的</strong></p>
+<p>我们注意到这个 updateWindowsLocked 方法的参数泛型是 WindowInfo，那么它是如何转化为 AccessibilityWindowInfo 的呢？继续分析</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; AccessibilityManagerService$ SecurityPolicy# updateWindowsLocked</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"> AccessibilityWindowInfo window &#x3D; (mWindowsForAccessibilityCallback !&#x3D; null)</span><br><span class="line">                            ? mWindowsForAccessibilityCallback.populateReportedWindow(windowInfo)</span><br><span class="line">                            : null;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>所以必须得先设置 mWindowsForAccessibilityCallback 才能够进行创建的动作，这个 callback 是 AccessibilityManagerService 的内部类  WindowsForAccessibilityCallback<br>，搜索一下它创建的地方</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; AccessibilityManagerService</span><br><span class="line"></span><br><span class="line">private void updateWindowsForAccessibilityCallbackLocked(UserState userState) &#123;</span><br><span class="line"></span><br><span class="line">    List&lt;Service&gt; boundServices &#x3D; userState.mBoundServices;</span><br><span class="line">    final int boundServiceCount &#x3D; boundServices.size();</span><br><span class="line">    for (int i &#x3D; 0; i &lt; boundServiceCount; i++) &#123;</span><br><span class="line">        Service boundService &#x3D; boundServices.get(i);</span><br><span class="line">        if (boundService.canRetrieveInteractiveWindowsLocked()) &#123;</span><br><span class="line">            if (mWindowsForAccessibilityCallback &#x3D;&#x3D; null) &#123;</span><br><span class="line">                mWindowsForAccessibilityCallback &#x3D; new WindowsForAccessibilityCallback();</span><br><span class="line">                mWindowManagerService.setWindowsForAccessibilityCallback(</span><br><span class="line">                        mWindowsForAccessibilityCallback);</span><br><span class="line">            &#125;</span><br><span class="line">            return;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个方法比较关键，<strong>首先 UserState 需要添加了 mBoundServices；其次 boundService 必须支持 canRetrieveInteractiveWindows 条件才能够创建 WindowsForAccessibilityCallback</strong></p>
+<p>关于内部类 UserState 如何满足上述条件，后续的文章再分析。现在假设满足了这个条件，那么看看方法 populateReportedWindow</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; AccessibilityManagerService$ WindowsForAccessibilityCallback# populateReportedWindow</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">AccessibilityWindowInfo reportedWindow &#x3D; AccessibilityWindowInfo.obtain();</span><br><span class="line"></span><br><span class="line">reportedWindow.setId(windowId);</span><br><span class="line">reportedWindow.setType(getTypeForWindowManagerWindowType(window.type));</span><br><span class="line">reportedWindow.setLayer(window.layer);</span><br><span class="line">reportedWindow.setFocused(window.focused);</span><br><span class="line">reportedWindow.setBoundsInScreen(window.boundsInScreen);</span><br><span class="line">reportedWindow.setTitle(window.title);</span><br><span class="line">reportedWindow.setAnchorId(window.accessibilityIdOfAnchor);</span><br><span class="line">reportedWindow.setPictureInPicture(window.inPictureInPicture);</span><br><span class="line">reportedWindow.setDisplayId(window.displayId);</span><br><span class="line"></span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>代码中可以看到，WindowInfo 的信息直接设置到了 AccessibilityWindowInfo 中</p>
+<p>接下来的代码中就会执行到 mWindows.add(window) 将 AccessibilityWindowInfo 添加到 List 中。中间有一段对 Active Window 的设置要说一下。有两段</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; method updateWindowsLocked</span><br><span class="line">&#x2F;&#x2F; 第一段</span><br><span class="line"></span><br><span class="line">boolean activeWindowGone &#x3D; true;</span><br><span class="line"></span><br><span class="line">if (window.isFocused()) &#123;</span><br><span class="line">    mFocusedWindowId &#x3D; windowId;</span><br><span class="line">    if (!mTouchInteractionInProgress) &#123;</span><br><span class="line">        mActiveWindowId &#x3D; windowId;</span><br><span class="line">        window.setActive(true);</span><br><span class="line">    &#125; else if (windowId &#x3D;&#x3D; mActiveWindowId) &#123;</span><br><span class="line">        activeWindowGone &#x3D; false;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>一个获取了焦点的窗口，并且用户并没有在触摸屏幕（!mTouchInteractionInProgress），则设置该窗口为 Active Window</strong></p>
+<p><strong>一个获取了焦点的窗口，并且已经设置为 Active Window，若用户正在触摸屏幕，则不会撤销它 Active Window 的设置（activeWindowGone = false</strong></p>
+<p>这里正在触摸屏幕可以理解为系统收到了 MotionEvent.ACTION_DOWN 事件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; updateWindowsLocked</span><br><span class="line">&#x2F;&#x2F; 第二段</span><br><span class="line"></span><br><span class="line">if (mTouchInteractionInProgress &amp;&amp; activeWindowGone) &#123;</span><br><span class="line">    mActiveWindowId &#x3D; mFocusedWindowId;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">final int accessibilityWindowCount &#x3D; mWindows.size();</span><br><span class="line">for (int i &#x3D; 0; i &lt; accessibilityWindowCount; i++) &#123;</span><br><span class="line">    AccessibilityWindowInfo window &#x3D; mWindows.get(i);</span><br><span class="line">    if (window.getId() &#x3D;&#x3D; mActiveWindowId) &#123;</span><br><span class="line">        window.setActive(true);</span><br><span class="line">    &#125;</span><br><span class="line">    if (window.getId() &#x3D;&#x3D; mAccessibilityFocusedWindowId) &#123;</span><br><span class="line">        window.setAccessibilityFocused(true);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>如果当前窗口不是 Active 窗口且用户正在触摸屏幕，则把焦点窗口设置为 Active 窗口</strong></p>
+<p>这一串的骚操作，目的就是为了设置 Active Window 供 UiAutomation# getRootInActiveWindow 使用</p>
+<p>今天关于 AccessibilityWindowInfo 的创建做了介绍，了解了它是对应于 WindowInfo，并且在什么条件下的窗口能够成为 Active 窗口的内容。另外，如何将窗口更新信息发送出去，窗口在何时更新的内容，以后的文章会继续介绍</p>
+</section>
+    
+
+    <footer id="post-meta" class="clearfix">
+        <a href="/about/">
+        <img class="avatar" src="/images/mine.png">
+        <div>
+            <span class="dark">一个极其普通的程序员</span>
+            <span></span>
+        </div>
+        </a>
+        <section id="sharing">
+            <!--
+            <a title="Share to Twitter" class="twitter" href="https://twitter.com/intent/tweet?text=http://yoursite.com/2020/02/12/UiAutomator2%20%E7%9A%84%20AccessibilityWindowInfo/ - UiAutomator2 的 AccessibilityWindowInfo @" target="_blank" rel="noopener"><span class="icon-twitter">tweet</span></a>
+            <a title="Share to Facebook" class="facebook" href="#" onclick="
+                window.open(
+                  'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),
+                  'facebook-share-dialog',
+                  'width=626,height=436');
+                return false;"><span class="icon-facebook-sign">Share</span>
+            </a>
+            -->
+        </section>
+    </footer>
+
+
+  <section id="comment">
+    <button class="btn" id="loadcmts" onclick="cmts.load();">加载评论</button>
+    <div id="gitment"></div>
+    <script src='/js/gitment.browser.js'></script>
+    <link rel="stylesheet" href=''>
+    <script>
+      var cmts={
+        load:function cmts(){
+          var gitment = new Gitment({
+          
+            id: "UiAutomator2 的 AccessibilityWindowInfo",
+          
+            owner: "",
+            repo: "",
+            oauth: {
+              client_id: "",
+              client_secret: "",
+            },
+          })
+          gitment.render('gitment');
+          var loadcmt = document.getElementById("loadcmts");
+          var imyourfather = loadcmt.parentNode;
+          imyourfather.removeChild(loadcmts)
+        }
+      }
+    </script>
+  </section>
+
+
+	<footer id="footer">
+	<div id="social">
+		<p class="small">©  Henry Woo in CHJ Inc.
+		</p>
+	</div>
+</footer>
+
+</section>
+
+	<script src="//cdnjs.loli.net/ajax/libs/instantclick/3.0.1/instantclick.min.js" data-no-instant></script>
+	<script data-no-instant>
+		
+		InstantClick.init('mousedown');
+	</script>
+
+
+

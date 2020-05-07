@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+
+  <meta name="description" content="今天用一个洋气点的标题（不就是小学生也能看懂的英文吗），是因为 Android 自动化测试报了个错：Injecting to another application requires INJECT_EVENTS permission。为此我闹了点笑话
+现在仍然是疫情期间，所以在家远程办公时收到同事发">
+
+
+<link rel="alternate" href="/atom.xml" title="一个极其普通的程序员" type="application/atom+xml">
+<meta name="theme-color" content="#a1d0f6">
+<title>requires INJECT_EVENTS permission - 一个极其普通的程序员</title>
+<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+<link rel="shortcut icon" href="/favicon.png">
+
+<link rel="stylesheet" href="/css/style.css">
+
+<nav class="main-nav">
+
+	
+	    <a href="/">← 主页</a>
+	
+	
+	    <a href="/about/">About</a>
+	
+	    <a href="/archives/">Archives</a>
+	
+	
+	<!--
+	<a class="cta" href="/atom.xml" data-no-instant>订阅</a>
+	-->
+</nav>
+
+<section id="wrapper">
+    <article class="post">
+    <header>
+        
+            <h1>requires INJECT_EVENTS permission</h1>
+        
+        <h2 class="headline">Mar 03 2020
+        
+        </h2>
+    </header>
+</article>
+<section id="post-body"><p>今天用一个洋气点的标题（不就是小学生也能看懂的英文吗），是因为 Android 自动化测试报了个错：Injecting to another application requires INJECT_EVENTS permission。为此我闹了点笑话</p>
+<p>现在仍然是疫情期间，所以在家远程办公时收到同事发来的问题，于是在网上搜到一个答案</p>
+<p><img src="http://note.youdao.com/yws/res/14317/686EBD6EF9074C41943E4A6DE0B14D48" alt="image"></p>
+<p>竟然是因为 USB 调试没打开呢？毕竟是在排查问题，只能先看看我远程的设备这一项是怎么样的。操作到开发者模式以后，发现远程设备是打开的，那得关闭一下，然后自己跑跑看会不会报上面的问题吧。于是我毫无预兆的点了关闭，紧接着也收到了一条提醒“device not found”</p>
+<p>纳尼？这可是我唯一能调试的远程设备，我赶紧 adb devices 发现确实没了，我去**的，网上这都什么回答，把我坑惨了。求人不如求代码呢，我怒把异常堆栈翻出来，决定开始分析</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">W System.err: java.lang.SecurityException: Injecting to another application requires INJECT_EVENTS permission</span><br><span class="line">W System.err: 	at android.os.Parcel.readException(Parcel.java:2013)</span><br><span class="line">W System.err: 	at android.os.Parcel.readException(Parcel.java:1959)</span><br><span class="line">W System.err: 	at android.app.IUiAutomationConnection$Stub$Proxy.injectInputEvent(IUiAutomationConnection.java:288)</span><br><span class="line">W System.err: 	at android.app.UiAutomation.injectInputEvent(UiAutomation.java:572)</span><br></pre></td></tr></table></figure>
+
+<p>从这个 IUiAutomationConnection$Stub$Proxy.injectInputEvent 方法开始 tracking，它的实现类是 UiAutomationConnection，最终是调用了 InputManagerService</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; InputManagerService.java</span><br><span class="line"></span><br><span class="line">private boolean injectInputEventInternal(InputEvent event, int displayId, int mode) &#123;</span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    try &#123;</span><br><span class="line">        result &#x3D; nativeInjectInputEvent(mPtr, event, displayId, pid, uid, mode,</span><br><span class="line">                INJECTION_TIMEOUT_MILLIS, WindowManagerPolicy.FLAG_DISABLE_KEY_REPEAT);</span><br><span class="line">    &#125; finally &#123;</span><br><span class="line">        Binder.restoreCallingIdentity(ident);</span><br><span class="line">    &#125;</span><br><span class="line">    switch (result) &#123;</span><br><span class="line">        case INPUT_EVENT_INJECTION_PERMISSION_DENIED:</span><br><span class="line">            Slog.w(TAG, &quot;Input event injection from pid &quot; + pid + &quot; permission denied.&quot;);</span><br><span class="line">            throw new SecurityException(</span><br><span class="line">                    &quot;Injecting to another application requires INJECT_EVENTS permission&quot;);</span><br><span class="line">        case INPUT_EVENT_INJECTION_SUCCEEDED:</span><br><span class="line">            return true;</span><br><span class="line">        case INPUT_EVENT_INJECTION_TIMED_OUT:</span><br><span class="line">            Slog.w(TAG, &quot;Input event injection from pid &quot; + pid + &quot; timed out.&quot;);</span><br><span class="line">            return false;</span><br><span class="line">        case INPUT_EVENT_INJECTION_FAILED:</span><br><span class="line">        default:</span><br><span class="line">            Slog.w(TAG, &quot;Input event injection from pid &quot; + pid + &quot; failed.&quot;);</span><br><span class="line">            return false;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当一个本地方法 nativeInjectInputEvent 返回的结果是 INPUT_EVENT_INJECTION_PERMISSION_DENIED 时，就会抛出我在一开始提到的那个异常了，至少在我的场景里，不是什么 USB 调试模式没有打开的情况</p>
+<p>因此得出一个结论，在对框架比较了解并且具备源码的情况下，看代码时最直接的，不仅能多了解一点逻辑背后的内容，还能防止踩坑。咦？好像记起来一个事，我的远程设备已经被 USB 禁连了，这让远程办公还咋弄？！！！</p>
+</section>
+    
+
+    <footer id="post-meta" class="clearfix">
+        <a href="/about/">
+        <img class="avatar" src="/images/mine.png">
+        <div>
+            <span class="dark">一个极其普通的程序员</span>
+            <span></span>
+        </div>
+        </a>
+        <section id="sharing">
+            <!--
+            <a title="Share to Twitter" class="twitter" href="https://twitter.com/intent/tweet?text=http://yoursite.com/2020/03/03/requires%20INJECT_EVENTS%20permission/ - requires INJECT_EVENTS permission @" target="_blank" rel="noopener"><span class="icon-twitter">tweet</span></a>
+            <a title="Share to Facebook" class="facebook" href="#" onclick="
+                window.open(
+                  'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),
+                  'facebook-share-dialog',
+                  'width=626,height=436');
+                return false;"><span class="icon-facebook-sign">Share</span>
+            </a>
+            -->
+        </section>
+    </footer>
+
+
+  <section id="comment">
+    <button class="btn" id="loadcmts" onclick="cmts.load();">加载评论</button>
+    <div id="gitment"></div>
+    <script src='/js/gitment.browser.js'></script>
+    <link rel="stylesheet" href=''>
+    <script>
+      var cmts={
+        load:function cmts(){
+          var gitment = new Gitment({
+          
+            id: "requires INJECT_EVENTS permission",
+          
+            owner: "",
+            repo: "",
+            oauth: {
+              client_id: "",
+              client_secret: "",
+            },
+          })
+          gitment.render('gitment');
+          var loadcmt = document.getElementById("loadcmts");
+          var imyourfather = loadcmt.parentNode;
+          imyourfather.removeChild(loadcmts)
+        }
+      }
+    </script>
+  </section>
+
+
+	<footer id="footer">
+	<div id="social">
+		<p class="small">©  Henry Woo in CHJ Inc.
+		</p>
+	</div>
+</footer>
+
+</section>
+
+	<script src="//cdnjs.loli.net/ajax/libs/instantclick/3.0.1/instantclick.min.js" data-no-instant></script>
+	<script data-no-instant>
+		
+		InstantClick.init('mousedown');
+	</script>
+
+
+
