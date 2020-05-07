@@ -11,7 +11,7 @@
 
 <link rel="alternate" href="/atom.xml" title="一个极其普通的程序员" type="application/atom+xml">
 <meta name="theme-color" content="#a1d0f6">
-<title>关于 Docker 的基本使用 - 一个极其普通的程序员</title>
+<title>CentOS 中使用 Docker - 一个极其普通的程序员</title>
 <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
 <link rel="shortcut icon" href="/favicon.png">
 
@@ -37,7 +37,7 @@
     <article class="post">
     <header>
         
-            <h1>关于 Docker 的基本使用</h1>
+            <h1>CentOS 中使用 Docker</h1>
         
         <h2 class="headline">May 01 2020
         
@@ -71,7 +71,7 @@
 </blockquote>
 </li>
 </ol>
-<p>   ![](/Users/mac/Library/Application Support/typora-user-images/image-20200501202629226.png)</p>
+<p>   <img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1gejv52l0zej21v603074v.jpg" alt="image-20200501202629226.png"></p>
 <ol start="4">
 <li>命令行安装</li>
 </ol>
@@ -84,7 +84,7 @@
 <li>连接虚拟机</li>
 </ol>
 <p>镜像启动后在 Virtual Box 中可以看到启动状态</p>
-<img src="/Users/mac/Library/Application Support/typora-user-images/image-20200501203429125.png" alt="image-20200501203429125" style="zoom:50%;" />
+<img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1gejv5lsmiqj20cs02u74f.jpg" alt="image-20200501203429125.png" style="zoom:50%;" />
 
 
 
@@ -144,10 +144,10 @@
 </ol>
 <p>由于 Docker HUB 官网在国外，下载镜像时比较慢，我们修改为国内的阿里云</p>
 <p>在设置前，需要登录阿里云官网注册账号，然后从其控制台进入</p>
-<p>![](/Users/mac/Library/Application Support/typora-user-images/image-20200501212326564.png)</p>
+<p><img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1gejv6mbx49j21q0056my3.jpg" alt="image-20200501212326564.png"></p>
 <p>​       找到容器镜像服务</p>
-<p>​        ![](/Users/mac/Library/Application Support/typora-user-images/image-20200501212442306.png)</p>
-<p>![](/Users/mac/Library/Application Support/typora-user-images/image-20200501212634699.png)</p>
+<p>​        <img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1gejv6yakcpj214i0pegoe.jpg" alt="image-20200501212442306.png"></p>
+<p><img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1gejv7albv6j214013agq1.jpg" alt="image-20200501212634699.png"></p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sudo mkdir -p /etc/docker</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo tee /etc/docker/daemon.json &lt;&lt;-<span class="string">'EOF'</span></span></span><br><span class="line">&#123;</span><br><span class="line">  "registry-mirrors": ["https://替换为你自己阿里云的地址.mirror.aliyuncs.com"]</span><br><span class="line">&#125;</span><br><span class="line">EOF</span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo systemctl daemon-reload</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo systemctl restart docker</span></span><br></pre></td></tr></table></figure>
 
 
@@ -156,7 +156,7 @@
 <h5 id="示例，Docker-中安装-MySQL-镜像"><a href="#示例，Docker-中安装-MySQL-镜像" class="headerlink" title="示例，Docker 中安装 MySQL 镜像"></a>示例，Docker 中安装 MySQL 镜像</h5><p>进入 Docker HUB： <a href="https://hub.docker.com/" target="_blank" rel="noopener">https://hub.docker.com/</a></p>
 <p>搜索 mysql，解读一下怎么用</p>
 <p>像这样右上角标记了 OFFICIAL IMAGE 的，表示是官方出品</p>
-<p>![](/Users/mac/Library/Application Support/typora-user-images/image-20200501213433133.png)</p>
+<p><img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1gejv7mn9xtj21zw0mu43k.jpg" alt="image-20200501213433133.png"></p>
 <p>选择官方产品，进入这个页面，当我们要下载指定版本的话，找到 MySQL 的 TAGS，以及一个对应的版本，然后在命令中填写，不带版本号的命令下载的是最新版本，这里我们在虚拟机中下载 MySQL 5.7</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[vagrant@localhost ~]$ sudo docker pull mysql:5.7</span><br><span class="line">5.7: Pulling from library/mysql</span><br><span class="line">...</span><br><span class="line">Status: Downloaded newer image for mysql:5.7</span><br><span class="line">docker.io/library/mysql:5.7</span><br></pre></td></tr></table></figure>
 
@@ -214,7 +214,7 @@
         </a>
         <section id="sharing">
             <!--
-            <a title="Share to Twitter" class="twitter" href="https://twitter.com/intent/tweet?text=http://yoursite.com/2020/05/01/%E5%85%B3%E4%BA%8E%20Docker%20%E7%9A%84%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8/ - 关于 Docker 的基本使用 @" target="_blank" rel="noopener"><span class="icon-twitter">tweet</span></a>
+            <a title="Share to Twitter" class="twitter" href="https://twitter.com/intent/tweet?text=http://yoursite.com/2020/05/01/CentOS%20%E4%B8%AD%E4%BD%BF%E7%94%A8%20Docker/ - CentOS 中使用 Docker @" target="_blank" rel="noopener"><span class="icon-twitter">tweet</span></a>
             <a title="Share to Facebook" class="facebook" href="#" onclick="
                 window.open(
                   'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),
@@ -237,7 +237,7 @@
         load:function cmts(){
           var gitment = new Gitment({
           
-            id: "关于 Docker 的基本使用",
+            id: "CentOS 中使用 Docker",
           
             owner: "",
             repo: "",
