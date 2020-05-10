@@ -46,7 +46,7 @@ renren-fast 就是一个 Java 的开源项目，只需要对它">
 <section id="post-body"><h4 id="什么是-renren-fast"><a href="#什么是-renren-fast" class="headerlink" title="什么是 renren-fast"></a>什么是 renren-fast</h4><p>事实上，我是 Android 方面的测试开发，很长一段时间对后台前端的东西了解不多，但自己定位的目标就是测试开发全栈工程师，因此对后台开发很感兴趣，也渴望能够通过一个开源项目快速开发起来一个测试管理平台</p>
 <p>renren-fast 就是一个 Java 的开源项目，只需要对它进行简单修改，就能够应用到自己的项目中，大大简化开发流程，缩短开发周期</p>
 <p>renren-fast 是一个前后端分离开发的项目，前端基于 vue，element-ui 构建，以下的内容，就是教大家如何在本机上将这两个项目部署起来，前端登录界面呈现这样的效果</p>
-<p>![](/Users/mac/Library/Application Support/typora-user-images/image-20200503171049704.png)</p>
+<p><img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1genoco1gtwj224q11shdt.jpg" alt="image-20200503171049704.png"></p>
 <p>搭建的过程，只需要 Java 开发基础，不会前端的东西也没关系，后面再慢慢学习</p>
 <h4 id="部署准备"><a href="#部署准备" class="headerlink" title="部署准备"></a>部署准备</h4><p>我这里演示，使用的是 Mac 系统，在 Windows 下的流程是完全一致的</p>
 <p>需要提前下载好这些工具</p>
@@ -65,35 +65,35 @@ renren-fast 就是一个 Java 的开源项目，只需要对它">
 <li>数据库连接工具，比如 Navicat</li>
 </ul>
 <h4 id="部署-renren-fast-后端"><a href="#部署-renren-fast-后端" class="headerlink" title="部署 renren-fast 后端"></a>部署 renren-fast 后端</h4><h5 id="IDEA-中拉取-renren-fast-工程"><a href="#IDEA-中拉取-renren-fast-工程" class="headerlink" title="IDEA 中拉取 renren-fast 工程"></a>IDEA 中拉取 renren-fast 工程</h5><p>IDEA 新建 Project，选择从 Git 中拉取项目，我的 IDEA 版本是 2019.1</p>
-<p>![](/Users/mac/Library/Application Support/typora-user-images/image-20200503173908155.png)</p>
+<p><img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1genod3vqnjj212c062k1h.jpg" alt="image-20200503173908155.png"></p>
 <p>将 renren-fast 项目地址填入 URL 中</p>
 <p><a href="https://gitee.com/renrenio/renren-fast.git" target="_blank" rel="noopener">https://gitee.com/renrenio/renren-fast.git</a></p>
 <p>执行 Clone</p>
 <p>代码拉到本地之后，点击 IDEA 右侧 Maven 面板的刷新，稍等片刻，依赖完成导入</p>
-<img src="/Users/mac/Library/Application Support/typora-user-images/image-20200503174336166.png" style="zoom:50%;" />
+<img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1genodq6jrwj20pu0cot9i.jpg" alt="image-20200503174336166.png" style="zoom:50%;" />
 
 <p>这时切到主应用 <code>RenrenApplication</code> 下，此时如果报错显示红色的话，表示需要设置一下 JDK</p>
-<p>![](/Users/mac/Library/Application Support/typora-user-images/image-20200503175528785.png)</p>
+<p><img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1genoean708j21ks0fumzt.jpg" alt="image-20200503175528785.png"></p>
 <h5 id="数据库建表"><a href="#数据库建表" class="headerlink" title="数据库建表"></a>数据库建表</h5><p>打开数据库访问工具 Navicat，连接到本机的 MySQL 上，然后新建一个数据库，比如 renren-db</p>
-<img src="/Users/mac/Library/Application Support/typora-user-images/image-20200503180212841.png" alt="image-20200503180212841" style="zoom:50%;" />
+<img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1genoen35tmj20li0aijsv.jpg" alt="image-20200503180212841.png" style="zoom:50%;" />
 
 <p>接下来，打开 renren-fast 项目工程 db 目录下的 mysql.sql</p>
-<img src="/Users/mac/Library/Application Support/typora-user-images/image-20200503180948177.png" alt="image-20200503180948177" style="zoom:50%;" />
+<img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1genof09ny1j20c8066aad.jpg" alt="image-20200503180948177.png" style="zoom:50%;" />
 
 <p>复制里面的所有内容，在 Navicat 中新建查询，将复制的内容粘贴到对话框内，执行语句完成建表操作</p>
-<img src="/Users/mac/Library/Application Support/typora-user-images/image-20200503181158106.png" alt="image-20200503181158106" style="zoom:50%;" />
+<img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1genoffwwosj20w60jo46t.jpg" alt="image-20200503181158106.png" style="zoom:50%;" />
 
 <p>刷新一下数据库表，就看到表被建立好了</p>
-<img src="/Users/mac/Library/Application Support/typora-user-images/image-20200503181347200.png" alt="image-20200503181347200" style="zoom:50%;" />
+<img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1genofwviqrj20iu0cmdoj.jpg" alt="image-20200503181347200.png" style="zoom:50%;" />
 
 <h5 id="修改数据库连接配置"><a href="#修改数据库连接配置" class="headerlink" title="修改数据库连接配置"></a>修改数据库连接配置</h5><p>在 <code>src/main/resources/application-dev.yml</code> 中，将我们自己的数据库地址，以及数据库名称，用户，密码进行修改</p>
-<img src="/Users/mac/Library/Application Support/typora-user-images/image-20200503181719661.png" alt="image-20200503181719661" style="zoom:50%;" />
+<img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1genog8afsrj20rm07ygmv.jpg" alt="image-20200503181719661.png" style="zoom:50%;" />
 
 <h5 id="启动-RenrenApplication"><a href="#启动-RenrenApplication" class="headerlink" title="启动 RenrenApplication"></a>启动 RenrenApplication</h5><p>配置完毕，就可以启动主应用了</p>
 <p>一般来说，启动都不会报异常，如果出错，大概率是数据库连接上出了问题，需要排查下</p>
 <p>访问这个路径，<a href="http://localhost:8080/renren-fast/" target="_blank" rel="noopener">http://localhost:8080/renren-fast/</a></p>
 <p>如果显示如下内容，就表示后台已经通了</p>
-<img src="/Users/mac/Library/Application Support/typora-user-images/image-20200503182151336.png" alt="image-20200503182151336" style="zoom:50%;" />
+<img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1genogmh21kj20j003aq39.jpg" alt="image-20200503182151336.png" style="zoom:50%;" />
 
 <h4 id="部署-renren-fast-vue-前端"><a href="#部署-renren-fast-vue-前端" class="headerlink" title="部署 renren-fast-vue 前端"></a>部署 renren-fast-vue 前端</h4><h5 id="Git-clone-到本地"><a href="#Git-clone-到本地" class="headerlink" title="Git clone 到本地"></a>Git clone 到本地</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> git <span class="built_in">clone</span> https://gitee.com/renrenio/renren-fast-vue.git</span></span><br></pre></td></tr></table></figure>
 
@@ -107,10 +107,10 @@ renren-fast 就是一个 Java 的开源项目，只需要对它">
 <p>项目启动成功会自动打开访问地址，如果没有自动打开则手动浏览器访问</p>
 <p><a href="http://localhost:8001" target="_blank" rel="noopener">http://localhost:8001</a></p>
 <h4 id="确认前后端联调"><a href="#确认前后端联调" class="headerlink" title="确认前后端联调"></a>确认前后端联调</h4><p>前端页面打开后，登录界面里点几下验证码图片，如果可以刷新成功，则表示前后端已经通了</p>
-<img src="/Users/mac/Library/Application Support/typora-user-images/image-20200503182910309.png" alt="image-20200503182910309" style="zoom:50%;" />
+<img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1genoh0pyc6j20kk0bsgmd.jpg" alt="image-20200503182910309.png" style="zoom:50%;" />
 
 <p>输入账号密码 admin，就可以登录进去</p>
-<img src="/Users/mac/Library/Application Support/typora-user-images/image-20200503183023331.png" alt="image-20200503183023331" style="zoom:50%;" />
+<img src="http://ww1.sinaimg.cn/large/4b6b69d3ly1genohebqf7j21jm0csq62.jpg" alt="image-20200503183023331.png" style="zoom:50%;" />
 
 <p>这样，一套用于快速开发管理系统的前后端项目就在本地部署好了</p>
 </section>
